@@ -26,6 +26,7 @@ def get_recommendations_for_user(username):
     else:
         return None
 
+
 def get_user_top_tracks(username):
     method = 'user.getTopTracks'
     params = {
@@ -42,6 +43,7 @@ def get_user_top_tracks(username):
         return top_tracks
     else:
         return None
+
 
 def get_track_info(track_name, artist_name):
     method = 'track.getInfo'
@@ -84,7 +86,55 @@ def get_spotify_song_info(track_name):
         return None, None
 
 
-# Youtube Intergration
+# Musixmatch API Integration
+API_KEY = 'YOUR_API_KEY'
+BASE_URL = 'https://api.musixmatch.com/ws/1.1/'
+
+
+def get_lyrics(track_name, artist_name):
+    method = 'matcher.lyrics.get'
+    params = {
+        'q_track': track_name,
+        'q_artist': artist_name,
+        'apikey': API_KEY
+    }
+
+    response = requests.get(BASE_URL + method, params=params)
+    if response.status_code == 200:
+        lyrics_data = response.json()
+        if lyrics_data['message']['body'] and lyrics_data['message']['body']['lyrics']:
+            lyrics = lyrics_data['message']['body']['lyrics']['lyrics_body']
+            # Process lyrics
+            return lyrics
+        else:
+            return "Lyrics not found."
+    else:
+        return None
+
+
+# Example function for getting current playing track details
+def get_current_track_details():
+    # Replace this with code to get the current playing track's details
+    track_name = "Track Name"
+    artist_name = "Artist Name"
+    return track_name, artist_name
+
+
+# Get current track details
+current_track_name, current_artist_name = get_current_track_details()
+
+# Get lyrics for the current track
+lyrics = get_lyrics(current_track_name, current_artist_name)
+
+# Display lyrics or perform further actions based on your service's requirements
+if lyrics:
+    print("Lyrics:")
+    print(lyrics)
+else:
+    print("Lyrics not found.")
+
+
+# YouTube Integration
 
 def get_youtube_video(track_name, artist_name):
     # Initialize YouTube Data API client
