@@ -25,4 +25,5 @@ urlpatterns = [
     path('api/upload/album/', views.AlbumUploadView.as_view(), name='album-upload'),
     path('api/upload/song/', views.SongUploadView.as_view(), name='song-upload'),
 
+
 ]

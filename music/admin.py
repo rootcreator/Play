@@ -9,3 +9,4 @@ admin.site.register(Song)
 admin.site.register(Playlist)
 admin.site.register(UserProfile)
 admin.site.register(UserLibrary)
+

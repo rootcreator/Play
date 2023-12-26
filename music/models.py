@@ -14,7 +14,13 @@ class Album(models.Model):
     title = models.CharField(max_length=200)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    cover_image = models.ImageField(upload_to='album_covers/'),
+    cover_image = models.ImageField(upload_to='album_covers/')
+
+    def __str__(self):
+        return self.title
+
+    def get_all_songs(self):
+        return self.song_set.all()
 
 
 class Song(models.Model):
@@ -22,27 +28,43 @@ class Song(models.Model):
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     audio_file = models.FileField(upload_to='songs/')
 
+    def __str__(self):
+        return self.title
+
 
 class Playlist(models.Model):
     title = models.CharField(max_length=200)
-    songs = models.ManyToManyField(Song)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='music_user_profile')
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     bio = models.TextField(blank=True)
 
     def __str__(self):
         return self.user.username
+    # Add any additional user-related fields here
 
+
+class UserPlaylist(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    songs = models.ManyToManyField(Song)
+
+
+class UserFavorite(models.Model):
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+
+
+# Additional fields could be added to UserFavorite if needed, like date_added, etc.
 
 class UserLibrary(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    saved_songs = models.ManyToManyField(Song)
-    saved_albums = models.ManyToManyField(Album)
-    favorite_artists = models.ManyToManyField(Artist)
-    uploaded_songs = models.ManyToManyField(Song, related_name='uploaded_by', blank=True)
-    created_playlists = models.ManyToManyField(Playlist, related_name='created_by', blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='music_user_library')
+    saved_songs = models.ManyToManyField(Song, related_name='music_saved_songs')
+    saved_albums = models.ManyToManyField(Album, related_name='music_saved_albums')
+    favorite_artists = models.ManyToManyField(Artist, related_name='music_favorite_artists')
+    uploaded_songs = models.ManyToManyField(Song, related_name='music_uploaded_songs', blank=True)
+    created_playlists = models.ManyToManyField(Playlist, related_name='music_created_playlists', blank=True)
     # Other fields as needed for user-specific data

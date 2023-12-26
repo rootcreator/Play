@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+from django.views import View
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
@@ -95,3 +97,15 @@ class UserProfileDetail(generics.RetrieveUpdateAPIView):
     def get_object(self):
         # Retrieve the user profile of the logged-in user
         return UserProfile.objects.get(user=self.request.user)
+
+
+class AlbumUploadView(View):
+    def post(self, request, *args, **kwargs):
+        # Implement your logic for handling album uploads here
+        return HttpResponse("Album uploaded successfully")
+
+
+class SongUploadView(View):
+    def post(self, request, *args, **kwargs):
+        # Implement your logic for handling song uploads here
+        return HttpResponse("Song uploaded successfully")

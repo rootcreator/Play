@@ -38,7 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'music',
+    'sendfile',
+    'users',
 ]
+
+# Backend for serving files
+SENDFILE_BACKEND = 'sendfile.backends.nginx'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
