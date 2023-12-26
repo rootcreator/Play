@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView
 from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
@@ -23,6 +23,8 @@ from .serializers import (
     UserProfileSerializer,
     UserLibrarySerializer,
 )
+from .dropbox_service import DropboxService
+from django_redis import get_redis_connection
 
 
 def index(request):
@@ -173,3 +175,85 @@ def artists_view(request):
 def user_profile_view(request):
     # Your view logic for user_profile_view here
     return HttpResponse("User Profile View")
+
+
+# dropbox views
+
+def upload_to_dropbox(request):
+    if request.method == 'POST' and request.FILES['file']:
+        file = request.FILES['file']
+        file_path = f'/path/to/store/{file.name}'  # Replace with your desired Dropbox path
+
+        # Save the file locally (temporarily)
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+
+        # Upload to Dropbox
+        dropbox_service = DropboxService()
+        dropbox_service.upload_file(file_path, file)
+
+        # Get the shared link for the uploaded file
+        shared_link = dropbox_service.get_shared_link(file_path)
+
+        # Clean up: remove the local file
+        # os.remove(file_path)  # Uncomment this line after testing
+
+        return render(request, 'success.html', {'shared_link': shared_link})
+    return render(request, 'upload.html')
+
+
+def upload_song(request):
+    if request.method == 'POST' and request.FILES['song_file']:
+        song_file = request.FILES['song_file']
+        title = request.POST['title']
+        artist = request.POST['artist']
+        genre = request.POST['genre']
+
+        # Save the file temporarily (locally) before uploading to cloud storage
+        file_path = f'/path/to/temp/{song_file.name}'
+        with open(file_path, 'wb+') as destination:
+            for chunk in song_file.chunks():
+                destination.write(chunk)
+
+        # Upload to Dropbox
+        dropbox_service = DropboxService()
+        dropbox_service.upload_file(file_path, song_file)
+
+        # Get the shared link for the uploaded file
+        file_url = dropbox_service.get_shared_link(file_path)
+
+        # Save metadata to the local database
+        new_song = Song.objects.create(
+            title=title,
+            artist=artist,
+            genre=genre,
+            file_url=file_url
+        )
+        new_song.save()
+
+        # Clean up: remove the local temporary file
+        # os.remove(file_path)  # Uncomment this line after testing
+
+        return redirect('success')  # Redirect to a success page
+    return render(request, 'upload.html')  # Render the upload form
+
+
+# redis cache system
+def get_popular_songs(request):
+    # Connect to Redis
+    redis_conn = get_redis_connection("default")
+
+    # Check if data exists in cache
+    cached_data = redis_conn.get("popular_songs_cache_key")
+    if cached_data:
+        return HttpResponse(cached_data)
+
+    # If not in cache, fetch data and store in cache
+    popular_songs = Song.objects.filter(popularity__gt=100).all()
+    response_data = '\n'.join([song.title for song in popular_songs])
+
+    # Store in cache for 15 minutes
+    redis_conn.setex("popular_songs_cache_key", 60 * 15, response_data)
+
+    return HttpResponse(response_data)

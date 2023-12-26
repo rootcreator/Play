@@ -3,6 +3,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from googleapiclient.discovery import build
 from .models import Song, Artist, Album, UserLibrary
 import requests
+import lyricsgenius
 
 # LastFm Integration
 API_KEY = 'YOUR_API_KEY'
@@ -86,54 +87,6 @@ def get_spotify_song_info(track_name):
         return None, None
 
 
-# Musixmatch API Integration
-API_KEY = 'YOUR_API_KEY'
-BASE_URL = 'https://api.musixmatch.com/ws/1.1/'
-
-
-def get_lyrics(track_name, artist_name):
-    method = 'matcher.lyrics.get'
-    params = {
-        'q_track': track_name,
-        'q_artist': artist_name,
-        'apikey': API_KEY
-    }
-
-    response = requests.get(BASE_URL + method, params=params)
-    if response.status_code == 200:
-        lyrics_data = response.json()
-        if lyrics_data['message']['body'] and lyrics_data['message']['body']['lyrics']:
-            lyrics = lyrics_data['message']['body']['lyrics']['lyrics_body']
-            # Process lyrics
-            return lyrics
-        else:
-            return "Lyrics not found."
-    else:
-        return None
-
-
-# Example function for getting current playing track details
-def get_current_track_details():
-    # Replace this with code to get the current playing track's details
-    track_name = "Track Name"
-    artist_name = "Artist Name"
-    return track_name, artist_name
-
-
-# Get current track details
-current_track_name, current_artist_name = get_current_track_details()
-
-# Get lyrics for the current track
-lyrics = get_lyrics(current_track_name, current_artist_name)
-
-# Display lyrics or perform further actions based on your service's requirements
-if lyrics:
-    print("Lyrics:")
-    print(lyrics)
-else:
-    print("Lyrics not found.")
-
-
 # YouTube Integration
 
 def get_youtube_video(track_name, artist_name):
@@ -179,3 +132,125 @@ def add_song_to_library(user_profile, track_name):
                     song.save()
                     return f"Song '{track_name}' added to library with YouTube link: {video_url}"
     return "Failed to add song to library or find YouTube video"
+
+
+# Musixmatch API credentials
+MUSIXMATCH_API_KEY = 'YOUR_MUSIXMATCH_API_KEY'
+MUSIXMATCH_BASE_URL = 'https://api.musixmatch.com/ws/1.1/'
+
+# Genius API credentials
+GENIUS_ACCESS_TOKEN = 'YOUR_GENIUS_ACCESS_TOKEN'
+GENIUS_BASE_URL = 'https://api.genius.com/'
+
+
+# Use Musixmatch to find lyrics else use genius
+
+def get_lyrics_from_musixmatch(track_name, artist_name):
+    endpoint = 'matcher.lyrics.get'
+    params = {
+        'apikey': MUSIXMATCH_API_KEY,
+        'q_track': track_name,
+        'q_artist': artist_name,
+    }
+
+    response = requests.get(f"{MUSIXMATCH_BASE_URL}{endpoint}", params=params)
+    if response.status_code == 200:
+        data = response.json()
+        if data['message']['header']['status_code'] == 200:
+            if 'lyrics_body' in data['message']['body']['lyrics']:
+                lyrics = data['message']['body']['lyrics']['lyrics_body']
+                return lyrics
+    return None
+
+
+def get_lyrics_from_genius(track_name, artist_name):
+    headers = {'Authorization': f'Bearer {GENIUS_ACCESS_TOKEN}'}
+    params = {'q': f"{track_name} {artist_name}"}
+
+    response = requests.get(f"{GENIUS_BASE_URL}search", headers=headers, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        if 'hits' in data['response'] and data['response']['hits']:
+            song_id = data['response']['hits'][0]['result']['id']
+            lyrics_path = f"songs/{song_id}/lyrics"
+            lyrics_response = requests.get(f"{GENIUS_BASE_URL}{lyrics_path}", headers=headers)
+            if lyrics_response.status_code == 200:
+                lyrics_data = lyrics_response.json()
+                if 'lyrics' in lyrics_data['response']:
+                    lyrics = lyrics_data['response']['lyrics']['plain']
+                    return lyrics
+    return None
+
+
+def get_lyrics(track_name, artist_name):
+    musixmatch_lyrics = get_lyrics_from_musixmatch(track_name, artist_name)
+    if musixmatch_lyrics:
+        return musixmatch_lyrics
+    else:
+        genius_lyrics = get_lyrics_from_genius(track_name, artist_name)
+        if genius_lyrics:
+            return genius_lyrics
+    return "Lyrics not found."
+
+
+# Usage example:
+track_name = "Song Name"
+artist_name = "Artist Name"
+lyrics = get_lyrics(track_name, artist_name)
+print(lyrics)
+
+
+# TRENDS
+
+# Function to fetch Billboard chart data
+def get_billboard_chart(chart_type, api_key):
+    BILLBOARD_BASE_URL = f'https://api.billboard.com/charts/{chart_type}'
+
+    params = {
+        'key': api_key,
+        'format': 'json'
+    }
+
+    response = requests.get(BILLBOARD_BASE_URL, params=params)
+    if response.status_code == 200:
+        chart_data = response.json()
+        return chart_data['charts'][0]['entries'] if 'charts' in chart_data else None
+    else:
+        return None
+
+
+# Usage example:
+billboard_api_key = 'YOUR_BILLBOARD_API_KEY'  # Replace with your Billboard API key
+top_songs = get_billboard_chart('hot-100', billboard_api_key)  # Fetches the Hot 100 chart
+top_albums = get_billboard_chart('top-albums', billboard_api_key)  # Fetches the Top Albums chart
+
+
+# Process and display the retrieved data as needed
+
+# 30000 stations integration
+def find_stations_playing_track(track_name, radio_api_key):
+    RADIO_STATIONS_API_URL = 'https://api.30000radiostations.com/search'
+
+    params = {
+        'api_key': radio_api_key,
+        'q': track_name,
+        'limit': 10  # Adjust limit as needed
+    }
+
+    response = requests.get(RADIO_STATIONS_API_URL, params=params)
+    if response.status_code == 200:
+        stations_data = response.json()
+        return stations_data['stations'] if 'stations' in stations_data else None
+    else:
+        return None
+
+
+# Example: Find stations playing the top song from Billboard's Hot 100 chart
+if top_songs:
+    top_song_name = top_songs[0]['title']
+    radio_stations_api_key = 'YOUR_RADIO_STATIONS_API_KEY'  # Replace with your Radio Stations API key
+    stations_playing_top_song = find_stations_playing_track(top_song_name, radio_stations_api_key)
+    if stations_playing_top_song:
+        # Process stations' data or display station information
+        for station in stations_playing_top_song:
+            print(station['name'], station['stream_url'])  # Hypothetical display of station names and streaming URLs

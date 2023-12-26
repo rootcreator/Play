@@ -29,6 +29,7 @@ class Song(models.Model):
     audio_file = models.FileField(upload_to='songs/')
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
+    file_url = models.URLField()  # URL to the song file in cloud storage
 
     def __str__(self):
         return self.title
