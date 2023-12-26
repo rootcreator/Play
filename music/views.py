@@ -1,9 +1,19 @@
 from django.http import HttpResponse
-from django.views import View
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-
-from .models import Genre, Artist, Album, Song, Playlist, UserProfile, UserLibrary
+from django.shortcuts import render
+from django.views.generic import ListView, DetailView
+from rest_framework import viewsets, permissions
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .models import (
+    Genre,
+    Artist,
+    Album,
+    Song,
+    Playlist,
+    UserProfile,
+    UserLibrary,
+)
 from .serializers import (
     GenreSerializer,
     ArtistSerializer,
@@ -15,97 +25,151 @@ from .serializers import (
 )
 
 
-# Views for listing and creating resources
-class GenreList(generics.ListCreateAPIView):
+def index(request):
+    # Your view logic here
+    return HttpResponse("Index Page")
+
+
+class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
 
-class ArtistList(generics.ListCreateAPIView):
+class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
 
 
-class AlbumList(generics.ListCreateAPIView):
+class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
 
 
-class SongList(generics.ListCreateAPIView):
+class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
 
-class PlaylistList(generics.ListCreateAPIView):
+class PlaylistViewSet(viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
 
 
-class UserProfileList(generics.ListCreateAPIView):
+class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
 
-class UserLibraryList(generics.ListCreateAPIView):
+class UserLibraryViewSet(viewsets.ModelViewSet):
     queryset = UserLibrary.objects.all()
     serializer_class = UserLibrarySerializer
 
 
-# Views for retrieving, updating, or deleting a single resource by ID
-class GenreDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
+class UserProfileDetail(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        serializer = UserProfileSerializer(request.user.profile)
+        return Response(serializer.data)
+
+    def put(self, request):
+        serializer = UserProfileSerializer(request.user.profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
 
 
-class ArtistDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Artist.objects.all()
-    serializer_class = ArtistSerializer
-
-
-class AlbumDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
-
-
-class SongDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Song.objects.all()
-    serializer_class = SongSerializer
-
-
-class PlaylistDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Playlist.objects.all()
-    serializer_class = PlaylistSerializer
-
-
-class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-
-
-class UserLibraryDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = UserLibrary.objects.all()
-    serializer_class = UserLibrarySerializer
-
-
-# Additional views and functionalities can be added as needed
-
-class UserProfileDetail(generics.RetrieveUpdateAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        # Retrieve the user profile of the logged-in user
-        return UserProfile.objects.get(user=self.request.user)
-
-
-class AlbumUploadView(View):
-    def post(self, request, *args, **kwargs):
-        # Implement your logic for handling album uploads here
+class AlbumUploadView(APIView):
+    def post(self, request):
+        # Logic for handling album uploads
         return HttpResponse("Album uploaded successfully")
 
 
-class SongUploadView(View):
-    def post(self, request, *args, **kwargs):
-        # Implement your logic for handling song uploads here
+class SongUploadView(APIView):
+    def post(self, request):
+        # Logic for handling song uploads
         return HttpResponse("Song uploaded successfully")
+
+
+class GenreList(ListView):
+    model = Genre
+
+
+class ArtistList(ListView):
+    model = Artist
+
+
+class AlbumList(ListView):
+    model = Album
+
+
+class SongList(ListView):
+    model = Song
+
+
+class PlaylistList(ListView):
+    model = Playlist
+
+
+class UserProfileList(ListView):
+    model = UserProfile
+
+
+class UserLibraryList(ListView):
+    model = UserLibrary
+
+
+class GenreDetail(DetailView):
+    model = Genre
+
+
+class ArtistDetail(DetailView):
+    model = Artist
+
+
+class AlbumDetail(DetailView):
+    model = Album
+
+
+class SongDetail(DetailView):
+    model = Song
+
+
+class PlaylistDetail(DetailView):
+    model = Playlist
+
+
+class UserProfileDetail(DetailView):
+    model = UserProfile
+
+
+class UserLibraryDetail(DetailView):
+    model = UserLibrary
+
+
+###
+
+def songs_view(request):
+    # Your view logic for songs_view here
+    return HttpResponse("Songs View")
+
+
+def albums_view(request):
+    # Your view logic for albums_view here
+    return HttpResponse("Albums View")
+
+
+def genres_view(request):
+    # Your view logic for genres_view here
+    return HttpResponse("Genres View")
+
+
+def artists_view(request):
+    # Your view logic for artists_view here
+    return HttpResponse("Artists View")
+
+
+def user_profile_view(request):
+    # Your view logic for user_profile_view here
+    return HttpResponse("User Profile View")

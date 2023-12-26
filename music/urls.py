@@ -26,4 +26,12 @@ urlpatterns = [
     path('api/upload/song/', views.SongUploadView.as_view(), name='song-upload'),
 
 
+    path('', views.index, name='index'),
+    path('songs/', views.songs_view, name='songs'),
+    path('albums/', views.albums_view, name='albums'),
+    path('genres/', views.genres_view, name='genres'),
+    path('artists/', views.artists_view, name='artists'),
+    path('user-profile/', views.user_profile_view, name='user_profile'),
+
+
 ]

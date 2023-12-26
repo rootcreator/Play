@@ -1,0 +1,61 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Music App</title>
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Music App</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="#songs">Songs</a></li>
+                <li><a href="#albums">Albums</a></li>
+                <li><a href="#genres">Genres</a></li>
+                <li><a href="#artists">Artists</a></li>
+                <li><a href="#user_profile">User Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="songs">
+            <h2>Songs</h2>
+            <ul>
+                {% for song in songs %}
+                    <li>{{ song.title }}</li>
+                    <!-- Display other song details as needed -->
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section id="albums">
+            <h2>Albums</h2>
+            <!-- Similar loop for albums -->
+        </section>
+
+        <section id="genres">
+            <h2>Genres</h2>
+            <!-- Similar loop for genres -->
+        </section>
+
+        <section id="artists">
+            <h2>Artists</h2>
+            <!-- Similar loop for artists -->
+        </section>
+
+        <section id="user_profile">
+            <h2>User Profile</h2>
+            <p>User: {{ user_profile.user.username }}</p>
+            <!-- Display other user profile details -->
+        </section>
+    </main>
+
+    <footer>
+        <!-- Footer content here -->
+    </footer>
+</body>
+</html>
