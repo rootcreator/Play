@@ -1,43 +1,32 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
+# Create a router and register viewsets
+router = DefaultRouter()
+router.register(r'genres', views.GenreViewSet)
+router.register(r'artists', views.ArtistViewSet)
+router.register(r'albums', views.AlbumViewSet)
+router.register(r'songs', views.SongViewSet)
+router.register(r'playlists', views.PlaylistViewSet)
+router.register(r'user-profiles', views.UserProfileViewSet)
+router.register(r'user-libraries', views.UserLibraryViewSet)
+
 urlpatterns = [
-    # URLs for listing and creating resources
-    path('api/genres/', views.GenreList.as_view(), name='genre-list'),
-    path('api/artists/', views.ArtistList.as_view(), name='artist-list'),
-    path('api/albums/', views.AlbumList.as_view(), name='album-list'),
-    path('api/songs/', views.SongList.as_view(), name='song-list'),
-    path('api/playlists/', views.PlaylistList.as_view(), name='playlist-list'),
-    path('api/user-profiles/', views.UserProfileList.as_view(), name='user-profile-list'),
-    path('api/user-libraries/', views.UserLibraryList.as_view(), name='user-library-list'),
-
-    # URLs for retrieving, updating, or deleting a single resource by ID
-    path('api/genres/<int:pk>/', views.GenreDetail.as_view(), name='genre-detail'),
-    path('api/artists/<int:pk>/', views.ArtistDetail.as_view(), name='artist-detail'),
-    path('api/albums/<int:pk>/', views.AlbumDetail.as_view(), name='album-detail'),
-    path('api/songs/<int:pk>/', views.SongDetail.as_view(), name='song-detail'),
-    path('api/playlists/<int:pk>/', views.PlaylistDetail.as_view(), name='playlist-detail'),
-    path('api/user-profiles/<int:pk>/', views.UserProfileDetail.as_view(), name='user-profile-detail'),
-    path('api/user-libraries/<int:pk>/', views.UserLibraryDetail.as_view(), name='user-library-detail'),
-
-    # Additional URLs as needed for various functionalities
-    path('api/user-profile/', views.UserProfileDetail.as_view(), name='user-profile'),
+    path('api/', include(router.urls)),
+    path('api/convert/', views.AudioConversionAPIView.as_view(), name='convert_audio'),
+    path('api/search/', views.search_api, name='search_api'),
     path('api/upload/album/', views.AlbumUploadView.as_view(), name='album-upload'),
     path('api/upload/song/', views.SongUploadView.as_view(), name='song-upload'),
+    path('api/user-profile/', views.UserProfileDetail.as_view(), name='user-profile'),
 
-
+    # Your other non-API URLs
     path('', views.index, name='index'),
     path('songs/', views.songs_view, name='songs'),
     path('albums/', views.albums_view, name='albums'),
     path('genres/', views.genres_view, name='genres'),
     path('artists/', views.artists_view, name='artists'),
     path('user-profile/', views.user_profile_view, name='user_profile'),
-
-
-    path('convert/', views.convert_audio, name='convert_audio'),
-
-
-
 
 
 ]

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>User Profile</h1>
+    <!-- Display user profile details -->
+    <p>Username: {{ user_profile.user.username }}</p>
+    <!-- Add other profile details -->
+</body>
+<!-- Example navigation in base.html -->
+<ul>
+    <li><a href="{% url 'user_profile' %}">Profile</a></li>
+    <li><a href="{% url 'profile_settings' %}">Profile Settings</a></li>
+    <li><a href="{% url 'user_library' %}">User Library</a></li>
+    <!-- Add other links as needed -->
+</ul>
+
+</html>

@@ -17,7 +17,6 @@ from django_redis.cache import RedisCache
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ SECRET_KEY = 'django-insecure-$osv1^l*v7vw5$^i*i0%long0sl8%7m68quc9x=lbgegd86#+b
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -64,7 +62,7 @@ ROOT_URLCONF = 'play.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -90,11 +88,6 @@ REST_FRAMEWORK = {
 # Redirect to a particular URL after login (optional)
 LOGIN_REDIRECT_URL = '/'  # Replace '/' with your desired URL
 
-
-
-
-
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -106,10 +99,13 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': 'Root101.com',
         'HOST': 'localhost',  # Or your PostgreSQL server IP
-        'PORT': '5432',       # Default PostgreSQL port
+        'PORT': '5432',  # Default PostgreSQL port
     }
 }
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -129,7 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -140,7 +135,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -155,21 +149,21 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-#MEDIA_URL = '/media/'
-#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DROPBOX_ACCESS_TOKEN = 'YOUR_DROPBOX_ACCESS_TOKEN'
 
-#Cache with Redis
+# Cache with Redis
 
 # Import necessary Django Redis settings
 
 
 # Redis configuration
-#REDIS_HOST = 'localhost'  # Replace with your Redis server's host
-#REDIS_PORT = 6379  # Replace with your Redis server's port
-#REDIS_DB = 0  # Replace with the desired database number
-#REDIS_PASSWORD = 'your_password_here'  # Replace with your Redis password if applicable
+# REDIS_HOST = 'localhost'  # Replace with your Redis server's host
+# REDIS_PORT = 6379  # Replace with your Redis server's port
+# REDIS_DB = 0  # Replace with the desired database number
+# REDIS_PASSWORD = 'your_password_here'  # Replace with your Redis password if applicable
 
 # Define Django CACHES setting for Redis
 REDIS_HOST = 'localhost'
@@ -206,8 +200,9 @@ CACHES = {
 # Get the default Redis connection
 redis_conn = get_redis_connection()
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'profile.html'

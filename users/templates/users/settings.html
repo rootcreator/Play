@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile Settings</title>
+</head>
+<body>
+    <h1>Profile Settings</h1>
+    <!-- Display profile settings form or information -->
+    <p>Username: {{ user_profile.user.username }}</p>
+    <p>Email: {{ user_profile.user.email }}</p>
+    <!-- Add other profile settings fields -->
+    <!-- You can include a form for updating profile settings -->
+</body>
+
+<!-- Example navigation in base.html -->
+<ul>
+    <li><a href="{% url 'user_profile' %}">Profile</a></li>
+    <li><a href="{% url 'profile_settings' %}">Profile Settings</a></li>
+    <li><a href="{% url 'user_library' %}">User Library</a></li>
+    <!-- Add other links as needed -->
+
+</html>

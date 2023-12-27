@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Library</title>
+</head>
+<body>
+    <h1>User Library</h1>
+    <!-- Display user library information -->
+    <h2>Saved Songs:</h2>
+    <ul>
+        {% for song in user_library.saved_songs.all %}
+            <li>{{ song.title }}</li>
+            <!-- Display other song details -->
+        {% endfor %}
+    </ul>
+    <h2>Saved Albums:</h2>
+    <ul>
+        {% for album in user_library.saved_albums.all %}
+            <li>{{ album.title }}</li>
+            <!-- Display other album details -->
+        {% endfor %}
+    </ul>
+    <!-- Display other user library details -->
+</body>
+<!-- Example navigation in base.html -->
+<ul>
+    <li><a href="{% url 'user_profile' %}">Profile</a></li>
+    <li><a href="{% url 'profile_settings' %}">Profile Settings</a></li>
+    <li><a href="{% url 'user_library' %}">User Library</a></li>
+    <!-- Add other links as needed -->
+</html>

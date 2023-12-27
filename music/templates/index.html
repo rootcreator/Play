@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,19 +20,19 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#albums">Albums</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#songs">Songs</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#artists">Artists</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#genres">Genres</a>
-                    </li>
-                </ul>
+    <li class="nav-item">
+        <a class="nav-link" href="#albums">Albums</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#songs">Songs</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#artists">Artists</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#genres">Genres</a>
+    </li>
+</ul>
             </div>
         </div>
     </nav>
@@ -41,16 +42,15 @@
 <main class="container mt-5">
     <section id="albums">
         <h2>Albums</h2>
-        <div class="row">
+        <div class="row" id="albumList">
             {% for album in albums %}
-                <div class="col-md-4 mb-3">
+                <div class="col-md-4 mb-3" data-album-id="{{ album.id }}">
                     <div class="card">
                         <img src="{{ album.cover_image.url }}" class="card-img-top" alt="Album Cover">
                         <div class="card-body">
                             <h5 class="card-title">{{ album.title }}</h5>
                             <p class="card-text">{{ album.artist.name }}</p>
-                            <button class="btn btn-primary btn-sm" onclick="playAlbum('{{ album.id }}')">Play Album
-                            </button>
+                            <button class="btn btn-primary btn-sm view-songs">View Songs</button>
                         </div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
     <!-- Songs Section -->
     <section id="songs">
         <h2>Songs</h2>
-        <ul class="list-group">
+        <ul class="list-group" id="albumSongsList">
             {% for song in songs %}
                 <li class="list-group-item">
                     <strong>{{ song.title }}</strong> - {{ song.artist.name }} (Album: {{ song.album.title }})
@@ -79,23 +79,25 @@
 
     <!-- Artists Section -->
     <section id="artists">
-        <h2>Artists</h2>
-        <ul class="list-group">
-            {% for artist in artists %}
-                <li class="list-group-item">{{ artist.name }}</li>
-            {% endfor %}
-        </ul>
-    </section>
+    <h2>Artists</h2>
+    <ul class="list-group" id="artistList">
+        {% for artist in artists %}
+            <li class="list-group-item artist-item" data-artist="{{ artist.name }}">{{ artist.name }}</li>
+        {% endfor %}
+    </ul>
+</section>
 
     <!-- Genres Section -->
     <section id="genres">
         <h2>Genres</h2>
-        <ul class="list-group">
-            {% for genre in genres %}
-                <li class="list-group-item">{{ genre.name }}</li>
-            {% endfor %}
-        </ul>
+       <ul class="list-group" id="genreList">
+        {% for genre in genres %}
+            <li class="list-group-item genre-item" data-genre="{{ genre.name }}">{{ genre.name }}</li>
+        {% endfor %}
+    </ul>
     </section>
+
+
 
     <!-- Music Player Section -->
     <section id="musicPlayer" class="mb-5">
@@ -114,44 +116,8 @@
 <!-- Bootstrap and jQuery scripts -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+ <script src="{% static 'js/main.js' %}"></script>
 
-<script>
-    // JavaScript for playing audio
-    const audioPlayer = document.getElementById('audioPlayer');
-    const currentSongInfo = document.getElementById('currentSongInfo');
-
-    // Function to play single song
-    function playAudio(audioSrc, songTitle, artistName) {
-        audioPlayer.src = audioSrc;
-        audioPlayer.play();
-        displayCurrentSongInfo(songTitle, artistName);
-    }
-
-    // Function to play entire album
-    function playAlbum(albumSongs) {
-        let currentSongIndex = 0;
-
-        function playNextSong() {
-            if (currentSongIndex < albumSongs.length) {
-                const song = albumSongs[currentSongIndex];
-                audioPlayer.src = song.audio_file;
-                audioPlayer.play();
-                displayCurrentSongInfo(song.title, song.artist.name);
-                currentSongIndex++;
-            } else {
-                currentSongIndex = 0;
-            }
-        }
-
-        playNextSong(); // Play the first song
-        audioPlayer.addEventListener('ended', playNextSong); // Play next song on 'ended' event
-    }
-
-    // Function to display current song info
-    function displayCurrentSongInfo(songTitle, artistName) {
-        currentSongInfo.innerHTML = `<strong>${songTitle}</strong> - ${artistName}`;
-    }
-</script>
 
 </body>
 </html>

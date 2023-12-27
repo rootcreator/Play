@@ -1,12 +1,11 @@
 import os
-
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView
 from rest_framework import viewsets, permissions
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import action
 from .models import (
     Genre,
     Artist,
@@ -29,43 +28,54 @@ from .serializers import (
 from .dropbox_service import DropboxService
 from django_redis import get_redis_connection
 import ffmpeg
+from .search_utils import search
 
 redis_conn = get_redis_connection()
 
 
-# audio conversion
-def convert_audio(request):
-    if request.method == 'POST':
-        input_file = request.FILES['audio_file']  # Get the uploaded audio file from the form
-        output_file = 'output_audio.mp3'  # Output MP3 file name
+# Search Views
+@api_view(['GET'])
+def search_api(request):
+    query = request.GET.get('q', '')
+    local_results, spotify_results = search(query)
 
-        # Save the uploaded file temporarily on the server
-        temp_file_path = 'temp_audio' + os.path.splitext(input_file.name)[1]  # Temp file path with the same extension
-        with open(temp_file_path, 'wb') as temp_file:
-            for chunk in input_file.chunks():
-                temp_file.write(chunk)
+    data = {
+        'local_results': local_results,
+        'spotify_results': spotify_results,
+        'query': query,
+    }
 
-        try:
-            # Run FFmpeg command to perform audio conversion to MP3
-            ffmpeg.input(temp_file_path).output(output_file, codec='libmp3lame', bitrate='320k').run()
-
-            # Clean up: Delete temporary input file after conversion
-            os.remove(temp_file_path)
-
-            # Send the converted audio file as a response
-            with open(output_file, 'rb') as f:
-                response = HttpResponse(f.read(), content_type='audio/mp3')
-                response['Content-Disposition'] = 'attachment; filename="output_audio.mp3"'
-                return response
-        except ffmpeg.Error as e:
-            # Handle FFmpeg errors during the conversion process
-            os.remove(temp_file_path)  # Delete temporary file on error
-            return HttpResponse(f'Error during audio conversion: {str(e)}', status=500)
-
-    # Handle GET requests (return a form for uploading audio files)
-    return render(request, 'audio_conversion.html')
+    return Response(data)
 
 
+# Audio Conversion Views
+class AudioConversionAPIView(APIView):
+    def post(self, request):
+        if request.method == 'POST':
+            input_file = request.FILES['audio_file']
+            output_file = 'output_audio.mp3'
+            temp_file_path = 'temp_audio' + os.path.splitext(input_file.name)[1]
+
+            with open(temp_file_path, 'wb') as temp_file:
+                for chunk in input_file.chunks():
+                    temp_file.write(chunk)
+
+            try:
+                ffmpeg.input(temp_file_path).output(output_file, codec='libmp3lame', bitrate='320k').run()
+                os.remove(temp_file_path)
+
+                with open(output_file, 'rb') as f:
+                    response = HttpResponse(f.read(), content_type='audio/mp3')
+                    response['Content-Disposition'] = 'attachment; filename="output_audio.mp3"'
+                    return response
+            except ffmpeg.Error as e:
+                os.remove(temp_file_path)
+                return HttpResponse(f'Error during audio conversion: {str(e)}', status=500)
+
+        return render(request, 'audio_conversion.html')
+
+
+# Other Django REST Framework viewsets(GenreViewSet, ArtistViewSet, AlbumViewSet, etc.)
 # Define Index
 def index(request):
     # Fetch data from models to display in the index view
@@ -119,6 +129,8 @@ class UserLibraryViewSet(viewsets.ModelViewSet):
     serializer_class = UserLibrarySerializer
 
 
+#
+
 class UserProfileDetail(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -134,6 +146,12 @@ class UserProfileDetail(APIView):
         return Response(serializer.errors, status=400)
 
 
+# Other API views for AlbumUploadView, SongUploadView, etc., can be structured similarly using APIView...
+
+# Other views (GenreList, ArtistList, AlbumList, etc.) remain unchanged as Django views.
+# Functions like songs_view, albums_view, genres_view, artists_view, user_profile_view, etc. can be kept as they are.
+
+# Your dropbox related views and other miscellaneous views can also be placed here.
 class AlbumUploadView(APIView):
     def post(self, request):
         # Logic for handling album uploads

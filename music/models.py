@@ -17,10 +17,23 @@ class Artist(models.Model):
 
 
 class Album(models.Model):
+    GOOD = 'Good'
+    OKAY = 'Okay'
+    MID = 'Mid'
+    BAD = 'Bad'
+
+    RATING_CHOICES = [
+        (GOOD, 'Good'),
+        (OKAY, 'Okay'),
+        (MID, 'Mid'),
+        (BAD, 'Bad'),
+    ]
+
     title = models.CharField(max_length=200)
     artist = models.ForeignKey('Artist', on_delete=models.CASCADE)
     genre = models.ForeignKey('Genre', on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
+    rating = models.CharField(max_length=10, choices=RATING_CHOICES, default=OKAY)
 
     def get_all_songs(self):
         return self.song_set.all()
@@ -30,11 +43,24 @@ class Album(models.Model):
 
 
 class Song(models.Model):
+    GOOD = 'Good'
+    OKAY = 'Okay'
+    MID = 'Mid'
+    BAD = 'Bad'
+
+    RATING_CHOICES = [
+        (GOOD, 'Good'),
+        (OKAY, 'Okay'),
+        (MID, 'Mid'),
+        (BAD, 'Bad'),
+    ]
+
     title = models.CharField(max_length=200)
     artist = models.ForeignKey('Artist', on_delete=models.CASCADE)
     cover_image = models.ImageField(null=True, blank=True, upload_to='song_covers/')
     album = models.ForeignKey('Album', on_delete=models.CASCADE, null=True, blank=True)
     audio_file = models.FileField(upload_to='songs/')
+    rating = models.CharField(max_length=10, choices=RATING_CHOICES, default=OKAY)
 
     def __str__(self):
         return self.title
@@ -75,7 +101,7 @@ class UserFavorite(models.Model):
 # Additional fields could be added to UserFavorite if needed, like date_added, etc.
 
 class UserLibrary(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='music_user_library')
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='music_user_library')
     saved_songs = models.ManyToManyField(Song, related_name='music_saved_songs')
     saved_albums = models.ManyToManyField(Album, related_name='music_saved_albums')
     favorite_artists = models.ManyToManyField(Artist, related_name='music_favorite_artists')
