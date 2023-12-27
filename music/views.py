@@ -1,5 +1,7 @@
+import os
+
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, DetailView
 from rest_framework import viewsets, permissions
 from rest_framework.views import APIView
@@ -13,6 +15,7 @@ from .models import (
     Playlist,
     UserProfile,
     UserLibrary,
+    AudioFile
 )
 from .serializers import (
     GenreSerializer,
@@ -25,11 +28,60 @@ from .serializers import (
 )
 from .dropbox_service import DropboxService
 from django_redis import get_redis_connection
+import ffmpeg
+
+redis_conn = get_redis_connection()
 
 
+# audio conversion
+def convert_audio(request):
+    if request.method == 'POST':
+        input_file = request.FILES['audio_file']  # Get the uploaded audio file from the form
+        output_file = 'output_audio.mp3'  # Output MP3 file name
+
+        # Save the uploaded file temporarily on the server
+        temp_file_path = 'temp_audio' + os.path.splitext(input_file.name)[1]  # Temp file path with the same extension
+        with open(temp_file_path, 'wb') as temp_file:
+            for chunk in input_file.chunks():
+                temp_file.write(chunk)
+
+        try:
+            # Run FFmpeg command to perform audio conversion to MP3
+            ffmpeg.input(temp_file_path).output(output_file, codec='libmp3lame', bitrate='320k').run()
+
+            # Clean up: Delete temporary input file after conversion
+            os.remove(temp_file_path)
+
+            # Send the converted audio file as a response
+            with open(output_file, 'rb') as f:
+                response = HttpResponse(f.read(), content_type='audio/mp3')
+                response['Content-Disposition'] = 'attachment; filename="output_audio.mp3"'
+                return response
+        except ffmpeg.Error as e:
+            # Handle FFmpeg errors during the conversion process
+            os.remove(temp_file_path)  # Delete temporary file on error
+            return HttpResponse(f'Error during audio conversion: {str(e)}', status=500)
+
+    # Handle GET requests (return a form for uploading audio files)
+    return render(request, 'audio_conversion.html')
+
+
+# Define Index
 def index(request):
-    # Your view logic here
-    return HttpResponse("Index Page")
+    # Fetch data from models to display in the index view
+    genres = Genre.objects.all()
+    artists = Artist.objects.all()
+    albums = Album.objects.all()
+    songs = Song.objects.all()
+
+    context = {
+        'genres': genres,
+        'artists': artists,
+        'albums': albums,
+        'songs': songs,
+    }
+
+    return render(request, 'index.html', context)
 
 
 class GenreViewSet(viewsets.ModelViewSet):

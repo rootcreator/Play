@@ -1,61 +1,157 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Music App</title>
+    <title>Music Player</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>Welcome to the Music App</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'index' %}">Home</a></li>
-                <li><a href="#songs">Songs</a></li>
-                <li><a href="#albums">Albums</a></li>
-                <li><a href="#genres">Genres</a></li>
-                <li><a href="#artists">Artists</a></li>
-                <li><a href="#user_profile">User Profile</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section id="songs">
-            <h2>Songs</h2>
-            <ul>
-                {% for song in songs %}
-                    <li>{{ song.title }}</li>
-                    <!-- Display other song details as needed -->
-                {% endfor %}
-            </ul>
-        </section>
+<!-- Header -->
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Music Player</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#albums">Albums</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#songs">Songs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#artists">Artists</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#genres">Genres</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
 
-        <section id="albums">
-            <h2>Albums</h2>
-            <!-- Similar loop for albums -->
-        </section>
+<!-- Main Content -->
+<main class="container mt-5">
+    <section id="albums">
+        <h2>Albums</h2>
+        <div class="row">
+            {% for album in albums %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <img src="{{ album.cover_image.url }}" class="card-img-top" alt="Album Cover">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ album.title }}</h5>
+                            <p class="card-text">{{ album.artist.name }}</p>
+                            <button class="btn btn-primary btn-sm" onclick="playAlbum('{{ album.id }}')">Play Album
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
 
-        <section id="genres">
-            <h2>Genres</h2>
-            <!-- Similar loop for genres -->
-        </section>
+    <!-- Add other sections for Songs, Artists, and Genres -->
+    <!-- Similar structure as the Albums section -->
 
-        <section id="artists">
-            <h2>Artists</h2>
-            <!-- Similar loop for artists -->
-        </section>
 
-        <section id="user_profile">
-            <h2>User Profile</h2>
-            <p>User: {{ user_profile.user.username }}</p>
-            <!-- Display other user profile details -->
-        </section>
-    </main>
 
-    <footer>
-        <!-- Footer content here -->
-    </footer>
+    <!-- Songs Section -->
+    <section id="songs">
+        <h2>Songs</h2>
+        <ul class="list-group">
+            {% for song in songs %}
+                <li class="list-group-item">
+                    <strong>{{ song.title }}</strong> - {{ song.artist.name }} (Album: {{ song.album.title }})
+                    <button class="btn btn-primary btn-sm ml-3" onclick="playAudio('{{ song.audio_file.url }}')">Play
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <!-- Artists Section -->
+    <section id="artists">
+        <h2>Artists</h2>
+        <ul class="list-group">
+            {% for artist in artists %}
+                <li class="list-group-item">{{ artist.name }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <!-- Genres Section -->
+    <section id="genres">
+        <h2>Genres</h2>
+        <ul class="list-group">
+            {% for genre in genres %}
+                <li class="list-group-item">{{ genre.name }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <!-- Music Player Section -->
+    <section id="musicPlayer" class="mb-5">
+        <h2>Music Player</h2>
+        <audio id="audioPlayer" controls></audio>
+        <p id="currentSongInfo"></p>
+    </section>
+</main>
+
+
+<!-- Footer -->
+<footer class="bg-dark text-light text-center py-3 mt-5">
+    <p>&copy; 2024 Music Player</p>
+</footer>
+
+<!-- Bootstrap and jQuery scripts -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    // JavaScript for playing audio
+    const audioPlayer = document.getElementById('audioPlayer');
+    const currentSongInfo = document.getElementById('currentSongInfo');
+
+    // Function to play single song
+    function playAudio(audioSrc, songTitle, artistName) {
+        audioPlayer.src = audioSrc;
+        audioPlayer.play();
+        displayCurrentSongInfo(songTitle, artistName);
+    }
+
+    // Function to play entire album
+    function playAlbum(albumSongs) {
+        let currentSongIndex = 0;
+
+        function playNextSong() {
+            if (currentSongIndex < albumSongs.length) {
+                const song = albumSongs[currentSongIndex];
+                audioPlayer.src = song.audio_file;
+                audioPlayer.play();
+                displayCurrentSongInfo(song.title, song.artist.name);
+                currentSongIndex++;
+            } else {
+                currentSongIndex = 0;
+            }
+        }
+
+        playNextSong(); // Play the first song
+        audioPlayer.addEventListener('ended', playNextSong); // Play next song on 'ended' event
+    }
+
+    // Function to display current song info
+    function displayCurrentSongInfo(songTitle, artistName) {
+        currentSongInfo.innerHTML = `<strong>${songTitle}</strong> - ${artistName}`;
+    }
+</script>
+
 </body>
 </html>

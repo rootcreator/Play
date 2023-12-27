@@ -5,31 +5,36 @@ from django.contrib.auth.models import User
 class Genre(models.Model):
     name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+
 
 class Artist(models.Model):
     name = models.CharField(max_length=100)
 
+    def __str__(self):
+        return self.name
+
 
 class Album(models.Model):
     title = models.CharField(max_length=200)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    artist = models.ForeignKey('Artist', on_delete=models.CASCADE)
+    genre = models.ForeignKey('Genre', on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
-
-    def __str__(self):
-        return self.title
 
     def get_all_songs(self):
         return self.song_set.all()
 
+    def __str__(self):
+        return self.title
+
 
 class Song(models.Model):
     title = models.CharField(max_length=200)
-    album = models.ForeignKey(Album, on_delete=models.CASCADE)
+    artist = models.ForeignKey('Artist', on_delete=models.CASCADE)
+    cover_image = models.ImageField(null=True, blank=True, upload_to='song_covers/')
+    album = models.ForeignKey('Album', on_delete=models.CASCADE, null=True, blank=True)
     audio_file = models.FileField(upload_to='songs/')
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    cover_image = models.ImageField(upload_to='album_covers/')
-    file_url = models.URLField()  # URL to the song file in cloud storage
 
     def __str__(self):
         return self.title
@@ -38,6 +43,9 @@ class Song(models.Model):
 class Playlist(models.Model):
     title = models.CharField(max_length=200)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
 
 
 class UserProfile(models.Model):
@@ -55,6 +63,9 @@ class UserPlaylist(models.Model):
     title = models.CharField(max_length=200)
     songs = models.ManyToManyField(Song)
 
+    def __str__(self):
+        return self.title
+
 
 class UserFavorite(models.Model):
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -71,3 +82,8 @@ class UserLibrary(models.Model):
     uploaded_songs = models.ManyToManyField(Song, related_name='music_uploaded_songs', blank=True)
     created_playlists = models.ManyToManyField(Playlist, related_name='music_created_playlists', blank=True)
     # Other fields as needed for user-specific data
+
+
+class AudioFile(models.Model):
+    title = models.CharField(max_length=100)
+    audio_file = models.FileField(upload_to='audio/')

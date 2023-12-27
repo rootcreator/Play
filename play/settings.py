@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
 from pathlib import Path
+from django_redis import get_redis_connection
+from django_redis.cache import RedisCache
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     'music',
     'sendfile',
     'users',
+    'django_ffmpeg',
 ]
 
 # Backend for serving files
@@ -157,16 +160,51 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DROPBOX_ACCESS_TOKEN = 'YOUR_DROPBOX_ACCESS_TOKEN'
 
+#Cache with Redis
+
+# Import necessary Django Redis settings
+
+
+# Redis configuration
+#REDIS_HOST = 'localhost'  # Replace with your Redis server's host
+#REDIS_PORT = 6379  # Replace with your Redis server's port
+#REDIS_DB = 0  # Replace with the desired database number
+#REDIS_PASSWORD = 'your_password_here'  # Replace with your Redis password if applicable
+
+# Define Django CACHES setting for Redis
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+REDIS_PASSWORD = 'your_password_here'
 
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Replace with your Redis server details
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
+            'PASSWORD': REDIS_PASSWORD,
+        },
+    },
 }
+
+# Optionally, you can define a custom Redis connection alias in Django settings
+# REDIS_CONNECTION = {
+#     'your_alias': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#             'PASSWORD': REDIS_PASSWORD,
+#         },
+#     },
+# }
+
+# Usage of the default Redis connection using django_redis get_redis_connection
+
+
+# Get the default Redis connection
+redis_conn = get_redis_connection()
 
 
 # Default primary key field type
