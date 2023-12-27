@@ -1,0 +1,33 @@
+<!-- search_results.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+
+    <!-- Display query -->
+    <p>You searched for: {{ query }}</p>
+
+    <!-- Display local results -->
+    <h2>Local Results</h2>
+    <ul>
+        {% for result in local_results %}
+            <li>{{ result }}</li>
+            <!-- Adjust this based on your actual result structure -->
+        {% empty %}
+            <li>No local results found.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Display Spotify results -->
+    <h2>Spotify Results</h2>
+    <ul>
+        {% for result in spotify_results %}
+            <li>{{ result }}</li>
+            <!-- Adjust this based on your actual result structure -->
+        {% empty %}
+            <li>No Spotify results found.</li
