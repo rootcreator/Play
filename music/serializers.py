@@ -1,9 +1,6 @@
 from rest_framework import serializers
-from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .models import Genre, Artist, Album, Song, Playlist, UserProfile, UserLibrary
+from .models import Genre, Artist, Album, Song, Playlist, UserProfile, UserPlaylist, UserFavorite, UserLibrary, \
+    AudioFile
 from django.contrib.auth.models import User
 
 
@@ -37,9 +34,29 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']  # Add more fields if needed
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
     class Meta:
         model = UserProfile
+        fields = ['id', 'user', 'profile_picture', 'bio']  # Add more fields if needed
+
+
+class UserPlaylistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPlaylist
+        fields = '__all__'
+
+
+class UserFavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFavorite
         fields = '__all__'
 
 
@@ -49,25 +66,7 @@ class UserLibrarySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AlbumUploadView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-
-    def post(self, request, *args, **kwargs):
-        album_serializer = AlbumSerializer(data=request.data)
-        if album_serializer.is_valid():
-            album_serializer.save()
-            return Response(album_serializer.data, status=201)
-        else:
-            return Response(album_serializer.errors, status=400)
-
-
-class SongUploadView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-
-    def post(self, request, *args, **kwargs):
-        song_serializer = SongSerializer(data=request.data)
-        if song_serializer.is_valid():
-            song_serializer.save()
-            return Response(song_serializer.data, status=201)
-        else:
-            return Response(song_serializer.errors, status=400)
+class AudioFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AudioFile
+        fields = '__all__'

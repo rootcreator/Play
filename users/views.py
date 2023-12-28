@@ -1,56 +1,63 @@
-from rest_framework import generics
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import status
-from .models import UserProfile, UserLibrary, UserProfileView
-from .serializers import UserProfileSerializer, UserLibrarySerializer, UserProfileViewSerializer
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.forms import AuthenticationForm
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework import generics, status
+from rest_framework.views import APIView
+from rest_framework.generics import ListCreateAPIView
 
-#login
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('user_profile')  # Redirect to user's profile page after successful login
-    else:
-        form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+from .models import UserProfile, UserLibrary, UserProfileView, Song, Album, Playlist
+from .serializers import (
+    UserProfileSerializer,
+    UserLibrarySerializer,
+    UserProfileViewSerializer,
+    SongSerializer,
+    AlbumSerializer,
+    PlaylistSerializer
+    # Add other serializers as needed
+)
 
-# Custom views for Dashboard Functionalities
-@login_required
-def user_profile(request):
-    user_profile = UserProfile.objects.get(user=request.user)
-    return render(request, 'users/profile.html', {'user_profile': user_profile})
+class UserProfileDetailView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user_profile = UserProfile.objects.get(user=request.user)
+        serializer = UserProfileSerializer(user_profile)
+        return Response(serializer.data)
 
-@login_required
-def user_settings(request):
-    user_profile = UserProfile.objects.get(user=request.user)
-    return render(request, 'users/settings.html', {'user_profile': user_profile})
+    def put(self, request):
+        user_profile = UserProfile.objects.get(user=request.user)
+        serializer = UserProfileSerializer(user_profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@login_required
-def user_library(request):
-    user_library = UserLibrary.objects.get(user_profile__user=request.user)
-    return render(request, 'users/library.html', {'user_library': user_library})
+# User Profile API Views
+class UserProfileListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
 
-# API Views for UserProfile
-class UserProfileListCreateView(generics.ListCreateAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
+    def get(self, request):
+        profiles = UserProfile.objects.all()
+        serializer = UserProfileSerializer(profiles, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = UserProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#class UserProfileListCreateView(ListCreateAPIView):
+#    queryset = UserProfile.objects.all()
+#    serializer_class = UserProfileSerializer
+#    permission_classes = [IsAuthenticated]
 
 class UserProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
-# API Views for UserLibrary
+# User Library API Views
 class UserLibraryListCreateView(generics.ListCreateAPIView):
     queryset = UserLibrary.objects.all()
     serializer_class = UserLibrarySerializer
@@ -59,7 +66,7 @@ class UserLibraryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserLibrary.objects.all()
     serializer_class = UserLibrarySerializer
 
-# API Views for UserProfileView
+# User Profile View API Views
 class UserProfileViewListCreateView(generics.ListCreateAPIView):
     queryset = UserProfileView.objects.all()
     serializer_class = UserProfileViewSerializer
@@ -67,3 +74,98 @@ class UserProfileViewListCreateView(generics.ListCreateAPIView):
 class UserProfileViewDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfileView.objects.all()
     serializer_class = UserProfileViewSerializer
+
+# Song API Views
+class SongListCreateView(generics.ListCreateAPIView):
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer
+
+class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer
+
+# Album API Views
+class AlbumListCreateView(generics.ListCreateAPIView):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+class AlbumDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+# Playlist API Views
+class PlaylistListCreateView(generics.ListCreateAPIView):
+    queryset = Playlist.objects.all()
+    serializer_class = PlaylistSerializer
+
+class PlaylistDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Playlist.objects.all()
+    serializer_class = PlaylistSerializer
+
+# Custom Root API
+@api_view(['GET'])
+def custom_api_root(request, format=None):
+    return Response({
+        'user-profiles': reverse('userprofile-list', request=request, format=format),
+        'user-libraries': reverse('userlibrary-list', request=request, format=format),
+        'user-profile-views': reverse('profileview-list', request=request, format=format),
+        'songs': reverse('song-list', request=request, format=format),
+        'albums': reverse('album-list', request=request, format=format),
+        'playlists': reverse('playlist-list', request=request, format=format),
+        # Add more endpoints as needed
+    })
+
+# UserProfile Dashboard API View
+@api_view(['GET'])
+def user_dashboard(request, format=None):
+    # Implement dashboard logic here
+    # Example: Retrieve specific data for the user's dashboard
+    return Response({
+        # Add dashboard data as needed
+    })
+
+# UserProfile Library API View
+@api_view(['GET'])
+def user_library(request, format=None):
+    # Implement library logic here
+    # Example: Retrieve user's saved songs, albums, playlists, etc.
+    return Response({
+        # Add library data as needed
+    })
+
+# UserProfile Settings API View
+@api_view(['GET', 'PUT'])
+def user_settings(request, format=None):
+    # Implement user settings logic here
+    # Example: Retrieve or update user settings
+    return Response({
+        # Add settings data as needed
+    })
+
+
+# Additional API Views for Songs
+class SongListCreateView(generics.ListCreateAPIView):
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer
+
+class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer
+
+# Additional API Views for Albums
+class AlbumListCreateView(generics.ListCreateAPIView):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+class AlbumDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+# Additional API Views for Playlists
+class PlaylistListCreateView(generics.ListCreateAPIView):
+    queryset = Playlist.objects.all()
+    serializer_class = PlaylistSerializer
+
+class PlaylistDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Playlist.objects.all()
+    serializer_class = PlaylistSerializer
