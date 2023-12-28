@@ -8,8 +8,12 @@ from rest_framework import viewsets, permissions, generics
 from rest_framework.decorators import api_view
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login
 from .models import (
     Genre, Artist, Album, Song, Playlist, UserProfile,
     UserLibrary, AudioFile
@@ -24,6 +28,24 @@ from django_redis import get_redis_connection
 from .dropbox_service import DropboxService
 
 redis_conn = get_redis_connection()
+
+
+# Login
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            # Redirect to a success page or perform an action upon successful login
+            # For example, you can redirect to a profile page:
+            return redirect(reverse('music:login'))  # Replace with your actual profile view name
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'login.html')
+
 
 
 # Search Views
@@ -213,6 +235,7 @@ class AlbumUploadView(View):
         else:
             # Return error response if 'album_file' is not found in request.FILES
             return HttpResponse("No album file found in the request", status=400)
+
 
 class SongUploadView(View):
     def post(self, request):

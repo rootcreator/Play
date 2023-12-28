@@ -1,15 +1,19 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from googleapiclient.discovery import build
-from .models import Song, Album  # Import your Django models
+
+from users.models import UserLibrary
+from .models import Song, Album, Artist  # Import your Django models
 
 # Initialize Spotify and YouTube API clients
 SPOTIFY_CLIENT_ID = 'YOUR_SPOTIFY_CLIENT_ID'
 SPOTIFY_CLIENT_SECRET = 'YOUR_SPOTIFY_CLIENT_SECRET'
 YOUTUBE_API_KEY = 'YOUR_YOUTUBE_API_KEY'
 
-sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
+sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=SPOTIFY_CLIENT_ID,
+                                                                         client_secret=SPOTIFY_CLIENT_SECRET))
 youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
+
 
 def get_youtube_video(track_name, artist_name):
     # Example: Search for a video related to the track obtained from Spotify
@@ -29,6 +33,7 @@ def get_youtube_video(track_name, artist_name):
     else:
         return None
 
+
 def get_spotify_song_info(track_name):
     # Implement the logic to fetch song details from Spotify
     # Example: Use Spotify API to get song details
@@ -42,6 +47,7 @@ def get_spotify_song_info(track_name):
         return song_title, artist_name
     else:
         return None, None
+
 
 def add_song_to_library(user_profile, track_name):
     # Fetch song details from Spotify

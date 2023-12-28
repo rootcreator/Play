@@ -30,4 +30,5 @@ urlpatterns = [
     path('', views.custom_api_root, name='custom-api-root'),
     path('api/user-profile/', views.UserProfileDetailView.as_view(), name='user-profile'),
 
+
 ]

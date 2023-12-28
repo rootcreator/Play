@@ -17,6 +17,7 @@ from .serializers import (
     # Add other serializers as needed
 )
 
+
 class UserProfileDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -33,6 +34,7 @@ class UserProfileDetailView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # User Profile API Views
 class UserProfileListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -48,7 +50,9 @@ class UserProfileListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#class UserProfileListCreateView(ListCreateAPIView):
+
+
+# class UserProfileListCreateView(ListCreateAPIView):
 #    queryset = UserProfile.objects.all()
 #    serializer_class = UserProfileSerializer
 #    permission_classes = [IsAuthenticated]
@@ -57,50 +61,61 @@ class UserProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
+
 # User Library API Views
 class UserLibraryListCreateView(generics.ListCreateAPIView):
     queryset = UserLibrary.objects.all()
     serializer_class = UserLibrarySerializer
 
+
 class UserLibraryDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserLibrary.objects.all()
     serializer_class = UserLibrarySerializer
+
 
 # User Profile View API Views
 class UserProfileViewListCreateView(generics.ListCreateAPIView):
     queryset = UserProfileView.objects.all()
     serializer_class = UserProfileViewSerializer
 
+
 class UserProfileViewDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfileView.objects.all()
     serializer_class = UserProfileViewSerializer
+
 
 # Song API Views
 class SongListCreateView(generics.ListCreateAPIView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
+
 class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
+
 
 # Album API Views
 class AlbumListCreateView(generics.ListCreateAPIView):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
 
+
 class AlbumDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
+
 
 # Playlist API Views
 class PlaylistListCreateView(generics.ListCreateAPIView):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
 
+
 class PlaylistDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
+
 
 # Custom Root API
 @api_view(['GET'])
@@ -115,6 +130,7 @@ def custom_api_root(request, format=None):
         # Add more endpoints as needed
     })
 
+
 # UserProfile Dashboard API View
 @api_view(['GET'])
 def user_dashboard(request, format=None):
@@ -124,6 +140,7 @@ def user_dashboard(request, format=None):
         # Add dashboard data as needed
     })
 
+
 # UserProfile Library API View
 @api_view(['GET'])
 def user_library(request, format=None):
@@ -132,6 +149,7 @@ def user_library(request, format=None):
     return Response({
         # Add library data as needed
     })
+
 
 # UserProfile Settings API View
 @api_view(['GET', 'PUT'])
@@ -148,23 +166,28 @@ class SongListCreateView(generics.ListCreateAPIView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
+
 class SongDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
+
 
 # Additional API Views for Albums
 class AlbumListCreateView(generics.ListCreateAPIView):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
 
+
 class AlbumDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
+
 
 # Additional API Views for Playlists
 class PlaylistListCreateView(generics.ListCreateAPIView):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
+
 
 class PlaylistDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Playlist.objects.all()

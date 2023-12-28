@@ -1,5 +1,7 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+
+app_name = 'music'
 
 urlpatterns = [
     # API URLs
@@ -24,4 +26,8 @@ urlpatterns = [
     path('genres/', views.genres_view, name='genres'),
     path('artists/', views.artists_view, name='artists'),
     path('user-profile/', views.user_profile_view, name='user_profile'),
+
+    path('users/', include('users.urls')),
+    path('login/', views.login_view, name='login'),
+
 ]
