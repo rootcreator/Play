@@ -62,7 +62,7 @@ ROOT_URLCONF = 'play.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Ensure 'templates' is listed here
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

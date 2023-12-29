@@ -1,33 +1,43 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Your JavaScript logic here
+$(document).ready(function() {
+    // Hide all sections except the Albums section on page load
+    $("section:not(#albums)").hide();
 
-    // Example: Fetching data using AJAX
-    // Replace 'url' with your actual endpoint
-    fetch('templates/index.html')
-        .then(response => response.json())
-        .then(data => {
-            // Handle the fetched data
-            console.log(data);
+    // Handle navigation clicks
+    $("ul.navbar-nav a").click(function(event) {
+        event.preventDefault();
+        var targetSection = $(this).attr("href");
+        $("section").hide();
+        $(targetSection).show();
+    });
 
-            // Modify the DOM based on the fetched data
-            const contentArea = document.getElementById('content-area');
-            if (contentArea) {
-                contentArea.innerHTML = '<h3>Fetched Data</h3>';
-                // You can create and append elements dynamically here
-            }
-        })
-        .catch(error => {
-            // Handle errors during data fetching
-            console.error('Error fetching data:', error);
-        });
+    // View Songs button click handler
+    $(".view-songs").click(function() {
+        var albumId = $(this).closest("[data-album-id]").data("album-id");
+        $("#albumSongsList li").hide();
+        $("#albumSongsList li[data-album-id='" + albumId + "']").show();
+        $("#songs").show();
+    });
 
-    // Add event listeners or other logic to handle user interactions, etc.
-    // Example: Handle a click event
-    const button = document.getElementById('my-button');
-    if (button) {
-        button.addEventListener('click', function(event) {
-            // Perform actions on button click
-            console.log('Button clicked!');
-        });
+    // Play audio
+    function playAudio(audioUrl) {
+        var audioPlayer = $("#audioPlayer");
+        audioPlayer.attr("src", audioUrl);
+        audioPlayer.trigger("play");
     }
+
+    // Play button click handler for individual songs
+    $("section#songs button").click(function() {
+        var audioUrl = $(this).closest("li").find("button").data("audio-url");
+        playAudio(audioUrl);
+        var songInfo = $(this).closest("li").text();
+        $("#currentSongInfo").text("Now playing: " + songInfo);
+    });
+
+    // Handle click on artist or genre items
+    $(".artist-item, .genre-item").click(function() {
+        var filterValue = $(this).data("artist") || $(this).data("genre");
+        $("#albumList > div").hide();
+        $("#albumList > div:has(p:contains('" + filterValue + "'))").show();
+        $("#albums").show();
+    });
 });

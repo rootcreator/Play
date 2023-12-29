@@ -1,33 +1,24 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
-app_name = 'music'
-
 urlpatterns = [
-    # API URLs
-    path('api/genres/', views.GenreList.as_view(), name='genre-list'),
-    path('api/artists/', views.ArtistList.as_view(), name='artist-list'),
-    path('api/albums/', views.AlbumList.as_view(), name='album-list'),
-    path('api/songs/', views.SongList.as_view(), name='song-list'),
-    path('api/playlists/', views.PlaylistList.as_view(), name='playlist-list'),
+    path('genres/', views.GenreListCreateView.as_view(), name='genre-list'),
+    path('artists/', views.ArtistListCreateView.as_view(), name='artist-list'),
+    path('albums/', views.AlbumListCreateView.as_view(), name='album-list'),
+    path('songs/', views.SongListCreateView.as_view(), name='song-list'),
+    path('playlists/', views.PlaylistListCreateView.as_view(), name='playlist-list'),
+    path('user-profiles/', views.UserProfileListCreateView.as_view(), name='user-profile-list'),
+    path('user-libraries/', views.UserLibraryListCreateView.as_view(), name='user-library-list'),
+    path('audio-files/', views.AudioFileListCreateView.as_view(), name='audio-file-list'),
+    path('users/', views.UserListCreateView.as_view(), name='user-list'),
 
-    # Other API URLs
-    path('api/convert/', views.AudioConversionAPIView.as_view(), name='convert_audio'),
-    path('api/search/', views.search_api, name='search_api'),
-    path('api/upload/album/', views.AlbumUploadView.as_view(), name='album-upload'),
-    path('api/upload/song/', views.SongUploadView.as_view(), name='song-upload'),
-    path('api/user-profile/', views.UserProfileDetail.as_view(), name='user-profile'),
+    path('search/', views.SearchView.as_view(), name='search'),
+    path('add-song-to-library/', views.AddSongToLibraryView.as_view(), name='add-song-to-library'),
 
-
-    # Regular URLs
-    path('', views.index, name='index'),
-    path('songs/', views.songs_view, name='songs'),
-    path('albums/', views.albums_view, name='albums'),
-    path('genres/', views.genres_view, name='genres'),
-    path('artists/', views.artists_view, name='artists'),
-    path('user-profile/', views.user_profile_view, name='user_profile'),
-
-    path('users/', include('users.urls')),
-    path('login/', views.login_view, name='login'),
-
+    path('upload-file/', views.FileUploadView.as_view(), name='upload-file'),
+    path('spotify-info/', views.SpotifyInfoView.as_view(), name='spotify-info'),
+    path('song-library/', views.SongLibraryView.as_view(), name='song-library'),
+    path('lyrics/', views.LyricsView.as_view(), name='lyrics'),
+    path('lastfm-integration/', views.LastFmIntegration.as_view(), name='lastfm-integration'),
+    path('trends/', views.TrendsIntegration.as_view(), name='trends'),
 ]

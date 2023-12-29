@@ -28,4 +28,5 @@ class AudioFileAdmin(admin.ModelAdmin):
 
     display_audio_player.short_description = 'Audio Player'
 
+
 admin.site.register(AudioFile, AudioFileAdmin)

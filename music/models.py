@@ -1,18 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.http import HttpResponse
-from django.views import View
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class Artist(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
@@ -64,34 +64,26 @@ class UserProfile(models.Model):
     def __str__(self):
         return self.user.username
 
+    @receiver(post_save, sender=User)
+    def create_user_profile(self, instance, created, **kwargs):
+        if created:
+            UserProfile.objects.create(user=instance)
 
-class UserPlaylist(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    songs = models.ManyToManyField(Song)
-
-    def __str__(self):
-        return self.title
-
-
-class UserFavorite(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    song = models.ForeignKey(Song, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.user.username}'s favorite - {self.song.title}"
+    @receiver(post_save, sender=User)
+    def save_user_profile(self, instance, **kwargs):
+        instance.music_user_profile.save()
 
 
 class UserLibrary(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='music_user_library')
-    saved_songs = models.ManyToManyField(Song, related_name='music_saved_in_libraries')
-    saved_albums = models.ManyToManyField(Album, related_name='music_saved_in_libraries')
-    favorite_artists = models.ManyToManyField(Artist, related_name='music_favorited_in_libraries')
-    uploaded_songs = models.ManyToManyField(Song, related_name='music_uploaded_songs', blank=True)
-    created_playlists = models.ManyToManyField(Playlist, related_name='music_created_in_libraries', blank=True)
+    user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='music_user_library')
+    saved_songs = models.ManyToManyField('Song', related_name='music_saved_in_libraries')
+    saved_albums = models.ManyToManyField('Album', related_name='music_saved_in_libraries')
+    favorite_artists = models.ManyToManyField('Artist', related_name='music_favorited_in_libraries')
+    uploaded_songs = models.ManyToManyField('Song', related_name='music_uploaded_songs', blank=True)
+    created_playlists = models.ManyToManyField('Playlist', related_name='music_created_in_libraries', blank=True)
 
     def __str__(self):
-        return f"Library of {self.user.username}"
+        return f"Library of {self.user_profile.user.username}"
 
 
 class AudioFile(models.Model):
@@ -100,6 +92,3 @@ class AudioFile(models.Model):
 
     def __str__(self):
         return self.title
-
-
-
