@@ -22,5 +22,6 @@ Features
 7. User uploads
 88.Trends based on user pattern
 9. Backend catalog management system (Coming Soon)
-10. Monetization (coming soon)
-11. Frontend (coming Soon)
+10. Maximizing Cloud Storage for Data ( Coming Soon)
+11. Monetization (coming soon)
+12. Frontend (coming Soon)
