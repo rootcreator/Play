@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from music.models import Song, Album, Artist, Playlist
+from music.models import Song, Artist, Playlist, Album
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')

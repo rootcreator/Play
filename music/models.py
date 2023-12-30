@@ -18,6 +18,25 @@ class Artist(models.Model):
         return self.name
 
 
+class Song(models.Model):
+    RATING_CHOICES = [
+        ('Good', 'Good'),
+        ('Okay', 'Okay'),
+        ('Mid', 'Mid'),
+        ('Bad', 'Bad'),
+    ]
+
+    title = models.CharField(max_length=200)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    cover_image = models.ImageField(null=True, blank=True, upload_to='song_covers/')
+    audio_file = models.FileField(upload_to='songs/')
+    is_single = models.BooleanField(default=True)  # Indicates if it's a single or part of an album
+    album = models.ForeignKey('Album', on_delete=models.CASCADE, null=True, blank=True)
+    rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
+
+    def __str__(self):
+        return self.title
+
 class Album(models.Model):
     RATING_CHOICES = [
         ('Good', 'Good'),
@@ -31,22 +50,10 @@ class Album(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
     rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
+    songs = models.ManyToManyField(Song, related_name='albums', blank=True)
 
     def __str__(self):
         return self.title
-
-
-class Song(models.Model):
-    title = models.CharField(max_length=200)
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    cover_image = models.ImageField(null=True, blank=True, upload_to='song_covers/')
-    album = models.ForeignKey(Album, on_delete=models.CASCADE, null=True, blank=True)
-    audio_file = models.FileField(upload_to='songs/')
-    rating = models.CharField(max_length=10, choices=Album.RATING_CHOICES, default='Okay')
-
-    def __str__(self):
-        return self.title
-
 
 class Playlist(models.Model):
     title = models.CharField(max_length=200)

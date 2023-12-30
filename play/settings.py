@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'sendfile',
     'users',
     'django_ffmpeg',
+    'catalog',
 ]
 
 # Backend for serving files
