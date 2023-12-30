@@ -5,15 +5,23 @@ Integrations
 2. Youtube
 3. Lastfm
 4. Musixmatch
-5. Django Rest Framework
+5. Genius
+6. Django Rest Framework
+7. Dropbox
+8. Google Drive
+9. Billboards
+10. 30,000 radio stations
 
 Features
-1. Streaming from cloud
-2. Host own songs
-3. Use Youtbe to display video matching song title and Spotify Meta Data
+1. Music Streaming
+2. Local Storage
+3. Show video from YouTube matching Spotify Meta Data
 4. Rating system for songs and albums
-5. Lyrics from Musixmatch
+5. Lyrics from Musixmatch & Genius
 6. User Profile with Library
 7. User uploads
-8. Monetization (coming soon)
-9. Frontend (coming Soon)
+88.Trends based on user pattern
+9. Backend catalog management system (Coming Soon)
+10. Maximizing Cloud Storage for Data ( Coming Soon)
+11. Monetization (coming soon)
+12. Frontend (coming Soon)
