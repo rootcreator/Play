@@ -26,6 +26,24 @@ SECRET_KEY = 'django-insecure-$osv1^l*v7vw5$^i*i0%long0sl8%7m68quc9x=lbgegd86#+b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends.schema': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+
+
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -111,7 +129,7 @@ LOGIN_REDIRECT_URL = '/'  # Replace '/' with your desired URL
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'play.01',
         'USER': 'postgres',
         'PASSWORD': 'Root101.com',
         'HOST': 'localhost',  # Or your PostgreSQL server IP
