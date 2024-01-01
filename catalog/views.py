@@ -31,3 +31,9 @@ class AlbumListCreateView(generics.ListCreateAPIView):
 class SongListCreateView(generics.ListCreateAPIView):
     queryset = Song.objects.all()  # Retrieve all Song objects from the database
     serializer_class = SongSerializer  # Use SongSerializer to serialize/deserialize Song objects
+
+
+# View for listing and creating Song objects using Django REST framework
+class ComposerListCreateView(generics.ListCreateAPIView):
+    queryset = Composer.objects.all()  # Retrieve all Song objects from the database
+    serializer_class = ComposerSerializer  # Use SongSerializer to serialize/deserialize Song objects
