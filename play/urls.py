@@ -31,8 +31,7 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/', include('music.urls')),
     path('', RedirectView.as_view(url='/music/')),
-    path('', include('catalog.urls')),
-    path('api/', include('catalog.urls')),
+
 
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

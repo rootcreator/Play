@@ -12,6 +12,13 @@ class Genre(models.Model):
         return self.name
 
 
+class Composer(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Artist(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -33,7 +40,12 @@ class Song(models.Model):
     audio_file = models.FileField(upload_to='songs/')
     is_single = models.BooleanField(default=True)  # Indicates if it's a single or part of an album
     album = models.ForeignKey('Album', on_delete=models.CASCADE, null=True, blank=True)
+    composer = models.ForeignKey(Composer, on_delete=models.CASCADE, null=True, blank=True)
     rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        unique_together = [['title', 'artist']]
 
     def __str__(self):
         return self.title
@@ -49,10 +61,13 @@ class Album(models.Model):
 
     title = models.CharField(max_length=200)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
     cover_image = models.ImageField(upload_to='album_covers/')
     rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
     songs = models.ManyToManyField(Song, related_name='albums', blank=True)
+
+    class Meta:
+        unique_together = [['title', 'artist', 'cover_image']]
 
     def __str__(self):
         return self.title
@@ -61,6 +76,9 @@ class Album(models.Model):
 class Playlist(models.Model):
     title = models.CharField(max_length=200)
     songs = models.ManyToManyField(Song)
+
+    class Meta:
+        unique_together = [['title']]
 
     def __str__(self):
         return self.title
@@ -92,13 +110,18 @@ class UserLibrary(models.Model):
     uploaded_songs = models.ManyToManyField('Song', related_name='music_uploaded_songs', blank=True)
     created_playlists = models.ManyToManyField('Playlist', related_name='music_created_in_libraries', blank=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user_profile'], name='unique_user_library')
+        ]
+
     def __str__(self):
         return f"Library of {self.user_profile.user.username}"
 
 
 class AudioFile(models.Model):
     title = models.CharField(max_length=100)
-    audio_file = models.FileField(upload_to='audio/')
+    audio_file = models.FileField(upload_to='songs/')
 
     def __str__(self):
         return self.title
@@ -141,3 +164,6 @@ class MusicAPI:
     @staticmethod
     def fetch_songs():
         return MusicAPI.fetch_data('songs/')
+
+
+    
