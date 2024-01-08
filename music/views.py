@@ -61,12 +61,28 @@ class AlbumListCreateView(GenericListCreateView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'albums.html'
 
+class AlbumListCreateView(TemplateView):
+    template_name = 'albums.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['albums'] = Album.objects.all()  # Fetch all songs
+        return context
+
 
 class SongListCreateView(GenericListCreateView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'songs.html'
+
+class SongListCreateView(TemplateView):
+    template_name = 'songs.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['songs'] = Song.objects.all()  # Fetch all songs
+        return context
 
 
 class PlaylistListCreateView(GenericListCreateView):
@@ -76,12 +92,12 @@ class PlaylistListCreateView(GenericListCreateView):
     template_name = 'playlists.html'
 
 
-class PlaylistListView(TemplateView):
+class PlaylistListCreateView(TemplateView):
     template_name = 'playlists.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['playlists'] = Playlist.objects.all().prefetch_related('songs')  # Fetch all playlists with related songs
+        context['playlists'] = Playlist.objects.all()  # Fetch all playlists
         return context
 
 

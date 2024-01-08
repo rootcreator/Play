@@ -54,21 +54,39 @@
         </ul>
     </div>
 </nav>
+
+<section>
+        <h2>Filter Albums</h2>
+        <form method="GET">
+            <!-- Add filter fields here (e.g., search, genre, artist, etc.) -->
+            <!-- For example: -->
+            <input type="text" name="search" placeholder="Search by title">
+
+            <!-- Add more filters as needed -->
+
+            <button type="submit">Apply Filters</button>
+        </form>
+    </section>
 <main>
-    <h1>List of Albums</h1>
-    <div class="album-container">
-        {% for Album in Albums %}
-        <div class="album-card">
-                <h3>{{ album.title }}</h3>
-                    <ul>
-                        <li>{{ Album.name }}</li> <!-- Assuming 'name' is a field in your Artist model -->
-            <!-- Add more fields from the Artist model as needed -->
-        {% empty %}
-            <li>No Albums found.</li>
-        {% endfor %}
-    </ul>
+   <section id="albums">
+            <h2>Albums</h2>
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                {% for album in albums %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }} Cover">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ album.title }}</h5>
+                                <p class="card-text">By {{ album.artist.name }}</p>
+                                <p class="card-text">Genre: {{ album.genre.name }}</p>
+                                <p class="card-text">Rating: {{ album.get_rating_display }}</p>
+                                <!-- Include other album details if needed -->
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-    </div>
+        </section>
 </main>
 
  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
