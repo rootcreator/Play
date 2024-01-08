@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>List of Playlists</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styling */
+        .playlist-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .playlist-card {
+            width: 23%;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .playlist-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .playlist-card ul {
+            padding-left: 20px;
+        }
+        .playlist-card li {
+            list-style-type: none;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<main>
+    <h1>List of Playlists</h1>
+    <div class="playlist-container">
+        {% for playlist in playlists %}
+            <div class="playlist-card">
+                <h3>{{ playlist.title }}</h3>
+                <ul>
+                    {% for song in playlist.songs.all %}
+                        <li>{{ song.title }} by {{ song.artist.name }}</li>
+                        <!-- Add more song details if needed -->
+                    {% endfor %}
+                </ul>
+            </div>
+        {% empty %}
+            <p>No playlists found.</p>
+        {% endfor %}
+    </div>
+</main>
+
+    <!-- Include Bootstrap JS for certain components (if needed) -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -2,6 +2,7 @@ import requests
 
 BASE_URL = 'http://localhost:8000/api/'  # Replace with your Django app's base URL
 
+
 def fetch_genres():
     endpoint = 'genres/'
     url = BASE_URL + endpoint
@@ -15,6 +16,7 @@ def fetch_genres():
     except requests.RequestException as e:
         print(f"Request error: {e}")
         return None
+
 
 def fetch_artists():
     endpoint = 'artists/'
@@ -30,6 +32,7 @@ def fetch_artists():
         print(f"Request error: {e}")
         return None
 
+
 def fetch_composers():
     endpoint = 'composers/'
     url = BASE_URL + endpoint
@@ -43,6 +46,7 @@ def fetch_composers():
     except requests.RequestException as e:
         print(f"Request error: {e}")
         return None
+
 
 def fetch_albums():
     endpoint = 'albums/'
@@ -58,6 +62,7 @@ def fetch_albums():
         print(f"Request error: {e}")
         return None
 
+
 def fetch_songs():
     endpoint = 'songs/'
     url = BASE_URL + endpoint
@@ -71,6 +76,7 @@ def fetch_songs():
     except requests.RequestException as e:
         print(f"Request error: {e}")
         return None
+
 
 # Test the functions
 if __name__ == "__main__":

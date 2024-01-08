@@ -1,5 +1,11 @@
-import dropbox
+from django.views.generic import TemplateView
+from pyradios import RadioBrowser
+from rest_framework.generics import ListCreateAPIView
 
+from rest_framework.renderers import TemplateHTMLRenderer
+
+import dropbox
+from django.db.models import Q
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from users.models import UserLibrary
@@ -16,6 +22,7 @@ from rest_framework.views import APIView
 from django.shortcuts import render
 from django.http import JsonResponse
 
+from . import radio_integrate
 from .music_video_integration import get_youtube_video
 from .search_utils import search
 from .spotify_integration import get_spotify_song_info
@@ -35,29 +42,47 @@ class GenericListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class GenreListCreateView(GenericListCreateView):
-    queryset = Genre.objects.all()
+class GenreListCreateView(generics.ListCreateAPIView):
+    queryset = Genre.objects.all().order_by('name')
     serializer_class = GenreSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'genres.html'
 
 
 class ArtistListCreateView(GenericListCreateView):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
-
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'artists.html'
 
 class AlbumListCreateView(GenericListCreateView):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'albums.html'
 
 
 class SongListCreateView(GenericListCreateView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'songs.html'
 
 
 class PlaylistListCreateView(GenericListCreateView):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'playlists.html'
+
+
+class PlaylistListView(TemplateView):
+    template_name = 'playlists.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['playlists'] = Playlist.objects.all().prefetch_related('songs')  # Fetch all playlists with related songs
+        return context
 
 
 class UserProfileListCreateView(GenericListCreateView):
@@ -447,43 +472,35 @@ class TrendsIntegration(APIView):
 
 
 # Search Utility
-
 class SearchView(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'search_results.html'  # Specify the name of your HTML template
+
     def get(self, request):
         query = request.GET.get('q')
 
         if not query:
             return Response({"error": "Missing 'q' parameter in query string"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Enhanced search function to retrieve data from local and Spotify
-        local_results, spotify_results = search(query)
+        # Search in the database for matching records based on the query
+        songs = Song.objects.filter(Q(title__icontains=query) | Q(artist__name__icontains=query))
+        albums = Album.objects.filter(title__icontains=query)
+        artists = Artist.objects.filter(name__icontains=query)
+        genres = Genre.objects.filter(name__icontains=query)
+        playlists = Playlist.objects.filter(title__icontains=query)
 
-        # Serialize local results
+        # Serialize the search results
         serialized_local_results = {
-            'songs': SongSerializer(local_results['songs'], many=True).data,
-            'albums': AlbumSerializer(local_results['albums'], many=True).data,
-            'artists': ArtistSerializer(local_results['artists'], many=True).data,
-            'genres': GenreSerializer(local_results['genres'], many=True).data,
-            'playlists': PlaylistSerializer(local_results['playlists'], many=True).data,
+            'songs': SongSerializer(songs, many=True).data,
+            'albums': AlbumSerializer(albums, many=True).data,
+            'artists': ArtistSerializer(artists, many=True).data,
+            'genres': GenreSerializer(genres, many=True).data,
+            'playlists': PlaylistSerializer(playlists, many=True).data,
         }
 
-        # Serialize Spotify results (Assuming you have a serializer for Spotify results)
-        serialized_spotify_results = SpotifySerializer(spotify_results).data
-
-        # Handle storage operations with error handling
-        try:
-            # Example: Uploading to Dropbox
-            upload_to_dropbox('path/to/your/file.txt', '/destination_path/file.txt')
-            # Example: Uploading to Google Drive
-            upload_to_google_drive('path/to/your/file.txt', 'file.txt')
-        except Exception as e:
-            return Response({"error": f"Storage operation failed: {str(e)}"},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # Combine both sets of serialized data
+        # Combine serialized data for the template
         serialized_data = {
             'local_results': serialized_local_results,
-            'spotify_results': serialized_spotify_results
         }
 
         return Response(serialized_data)
@@ -511,3 +528,61 @@ class AddSongToLibraryView(APIView):
                     return Response(f"Song '{song_title}' added to library with YouTube link: {video_url}")
 
         return Response("Failed to add song to library or find YouTube video", status=status.HTTP_400_BAD_REQUEST)
+
+
+# Radio
+def fetch_radio_server_data(server_urls):
+    server_data = []
+
+    for url in server_urls:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                # Assuming received data is JSON; adjust this based on the actual response format
+                server_data.append({'url': url, 'data': response.json()})
+            else:
+                server_data.append(
+                    {'url': url, 'data': f"Failed to fetch data from {url}. Status code: {response.status_code}"})
+        except requests.RequestException as e:
+            server_data.append({'url': url, 'data': f"Failed to fetch data from {url}. Error: {str(e)}"})
+
+    return server_data
+
+
+def display_radio_stations(request):
+    if request.method == 'POST':
+        track_name = request.POST.get('track_name', '')  # Get track name from POST data
+
+        rb = RadioBrowser()  # Create an instance of the RadioBrowser class
+        stations = rb.search(name=track_name, name_exact=True)  # Search for radio stations by track name
+
+        # List of radio server URLs (replace with your own list)
+        server_urls = ['all.api.radio-browser.info']
+
+        # Fetch data from the list of radio servers
+        server_data = fetch_radio_server_data(server_urls)
+
+        context = {
+            'track_name': track_name,
+            'stations': stations,
+            'server_data': server_data
+        }
+        return render(request, 'radio_stations.html', context)
+
+    return render(request, 'search_track.html')  # Render a template with a form for input
+
+
+# Index
+
+def index(request):
+    songs = Song.objects.all()
+    albums = Album.objects.all()
+    artists = Artist.objects.all()
+    genres = Genre.objects.all()
+
+    return render(request, 'index.html', {
+        'songs': songs,
+        'albums': albums,
+        'artists': artists,
+        'genres': genres,
+    })

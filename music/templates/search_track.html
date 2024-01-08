@@ -1,0 +1,17 @@
+<!-- search_track.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Track</title>
+</head>
+<body>
+    <h1>Search Radio</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="track_name">Enter Track Name:</label>
+        <input type="text" id="track_name" name="track_name" required>
+        <button type="submit">Search</button>
+    </form>
+</body>
+</html>

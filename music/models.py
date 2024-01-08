@@ -75,6 +75,7 @@ class Album(models.Model):
 
 class Playlist(models.Model):
     title = models.CharField(max_length=200)
+    cover_image = models.ImageField(upload_to='playlist_covers/')
     songs = models.ManyToManyField(Song)
 
     class Meta:

@@ -1,33 +1,64 @@
-<!-- search_results.html -->
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Search Results</title>
 </head>
 <body>
-    <h1>Search Results</h1>
+    <h1>Search</h1>
+    <form action="{% url 'search_view' %}" method="get">
+        <input type="text" name="q" placeholder="Search...">
+        <input type="submit" value="Search">
+    </form>
 
-    <!-- Display query -->
-    <p>You searched for: {{ query }}</p>
+    <h1>Local Results</h1>
+    {% if local_results.songs %}
+        <h2>Songs</h2>
+        <ul>
+            {% for song in local_results.songs %}
+                <li>{{ song.title }}</li>
+                <!-- Display other song details as needed -->
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-    <!-- Display local results -->
-    <h2>Local Results</h2>
-    <ul>
-        {% for result in local_results %}
-            <li>{{ result }}</li>
-            <!-- Adjust this based on your actual result structure -->
-        {% empty %}
-            <li>No local results found.</li>
-        {% endfor %}
-    </ul>
+    {% if local_results.albums %}
+        <h2>Albums</h2>
+        <ul>
+            {% for album in local_results.albums %}
+                <li>{{ album.title }}</li>
+                <!-- Display other album details as needed -->
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-    <!-- Display Spotify results -->
-    <h2>Spotify Results</h2>
-    <ul>
-        {% for result in spotify_results %}
-            <li>{{ result }}</li>
-            <!-- Adjust this based on your actual result structure -->
-        {% empty %}
-            <li>No Spotify results found.</li
+    {% if local_results.artists %}
+        <h2>Artists</h2>
+        <ul>
+            {% for artist in local_results.artists %}
+                <li>{{ artist.name }}</li>
+                <!-- Display other artist details as needed -->
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if local_results.genres %}
+        <h2>Genres</h2>
+        <ul>
+            {% for genre in local_results.genres %}
+                <li>{{ genre.name }}</li>
+                <!-- Display other genre details as needed -->
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if local_results.playlists %}
+        <h2>Playlists</h2>
+        <ul>
+            {% for playlist in local_results.playlists %}
+                <li>{{ playlist.name }}</li>
+                <!-- Display other playlist details as needed -->
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

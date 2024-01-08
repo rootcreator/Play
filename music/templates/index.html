@@ -1,56 +1,96 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Music Player</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Music Index</title>
 </head>
 <body>
+    <header>
+        <h1>Music Index</h1>
+    </header>
 
-<!-- Header -->
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#">Music Player</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-    <li class="nav-item">
-        <a class="nav-link" href="#albums">Albums</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#songs">Songs</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#artists">Artists</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="#genres">Genres</a>
-    </li>
-</ul>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+    <main>
+      <section id="songs">
+    <h1>Songs</h1>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for song in songs %}
+        <div class="col">
+            <div class="card h-100">
+                <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }} Cover">
+                <div class="card-body">
+                    <h5 class="card-title">{{ song.title }}</h5>
+                    <p class="card-text">By {{ song.artist.name }}</p>
+                    <p class="card-text">Rating: {{ song.get_rating_display }}</p>
+                    <!-- Include other song details if needed -->
+                </div>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-primary btn-play" data-src="{{ song.audio_file.url }}">Play</button>
+                </div>
             </div>
         </div>
-    </nav>
-</header>
+    {% endfor %}
+</div>
+</section>
 
-<!-- Main Content -->
-<main class="container mt-5">
-    <section id="albums">
-        <h2>Albums</h2>
-        <div class="row" id="albumList">
+<!-- <section id="playlists">
+    <h1>Playlists</h1>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for playlist in playlists %}
+            <div class="col">
+                <div class="card h-100">
+                    <img src="{{ playlist.cover_image.url }}" class="card-img-top" alt="{{ playlist.title }} Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ playlist.title }}</h5>
+                        <ul>
+                            {% for song in playlist.songs.all %}
+                                <li>{{ song.title }} by {{ song.artist.name }}</li>
+
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section> -->
+
+
+
+   <section id="albums">
+        <h1>Albums</h1>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
             {% for album in albums %}
-                <div class="col-md-4 mb-3" data-album-id="{{ album.id }}">
-                    <div class="card">
-                        <img src="{{ album.cover_image.url }}" class="card-img-top" alt="Album Cover">
+                <div class="col">
+                    <div class="card h-100">
+                        <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }} Cover">
                         <div class="card-body">
                             <h5 class="card-title">{{ album.title }}</h5>
-                            <p class="card-text">{{ album.artist.name }}</p>
-                            <button class="btn btn-primary btn-sm view-songs">View Songs</button>
+                            <p class="card-text">By {{ album.artist.name }}</p>
+                            <p class="card-text">Genre: {{ album.genre.name }}</p>
+                            <p class="card-text">Rating: {{ album.get_rating_display }}</p>
+                            <!-- Include other album details if needed -->
                         </div>
                     </div>
                 </div>
@@ -58,69 +98,68 @@
         </div>
     </section>
 
-    <!-- Add other sections for Songs, Artists, and Genres -->
-    <!-- Similar structure as the Albums section -->
 
-
-
-    <!-- Songs Section -->
-    <section id="songs">
-        <h2>Songs</h2>
-        <ul class="list-group" id="albumSongsList">
-            {% for song in songs %}
-                <li class="list-group-item">
-                    <strong>{{ song.title }}</strong> - {{ song.artist.name }} (Album: {{ song.album.title }})
-                    <button class="btn btn-primary btn-sm ml-3" onclick="playAudio('{{ song.audio_file.url }}')">Play
-                    </button>
-                </li>
-            {% endfor %}
-        </ul>
-    </section>
-
-    <!-- Artists Section -->
     <section id="artists">
-    <h2>Artists</h2>
-    <ul class="list-group" id="artistList">
+    <h1>Artists</h1>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
         {% for artist in artists %}
-            <li class="list-group-item artist-item" data-artist="{{ artist.name }}">{{ artist.name }}</li>
+            <div class="col">
+                <div class="card h-100">
+                    <!-- Add artist details to the card -->
+                    <div class="card-body">
+                        <h5 class="card-title">{{ artist.name }}</h5>
+                        <!-- Include other artist details as needed -->
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 </section>
 
-    <!-- Genres Section -->
-    <section id="genres">
-        <h2>Genres</h2>
-       <ul class="list-group" id="genreList">
+<section id="genres">
+    <h1>Genres</h1>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
         {% for genre in genres %}
-            <li class="list-group-item genre-item" data-genre="{{ genre.name }}">{{ genre.name }}</li>
+            <div class="col">
+                <div class="card h-100">
+                    <!-- Add genre details to the card -->
+                    <div class="card-body">
+                        <h5 class="card-title">{{ genre.name }}</h5>
+                        <!-- Include other genre details as needed -->
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
-    </section>
+    </div>
+</section>
+    </main>
 
+    <footer>
+        <!-- Music player widget -->
+        <div class="music-player">
+            <audio id="music-player" controls>
+                Your browser does not support the audio element.
+            </audio>
+        </div>
 
+        <!-- Footer content -->
+        <p>&copy; 2024 Your Music App</p>
+    </footer>
+    <!-- Bootstrap JS CDN (Add this to your template if Bootstrap is not included) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Music Player Section -->
-    <section id="musicPlayer" class="mb-5">
-        <h2>Music Player</h2>
-        <audio id="audioPlayer" controls></audio>
-        <p id="currentSongInfo"></p>
-    </section>
-</main>
+    <script>
+        const songList = document.querySelectorAll('.song');
 
-
-<!-- Footer -->
-<footer class="bg-dark text-light text-center py-3 mt-5">
-    <p>&copy; 2024 Music Player</p>
-</footer>
-{% load static %}
-
-<!-- Bootstrap and jQuery scripts -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
- <script src="{% static 'js/main.js' %}"></script>
-
-
-
-
+        // Play selected song when clicked
+        songList.forEach(song => {
+            song.addEventListener('click', () => {
+                const audioPlayer = document.getElementById('music-player');
+                audioPlayer.src = song.dataset.src;
+                audioPlayer.play();
+            });
+        });
+    </script>
 </body>
 </html>

@@ -5,6 +5,8 @@ from .models import Song, Artist, Album, UserLibrary
 import requests
 import lyricsgenius
 
+
+
 # LastFm Integration
 API_KEY = 'YOUR_API_KEY'
 BASE_URL = 'http://ws.audioscrobbler.com/2.0/'
@@ -227,30 +229,31 @@ top_albums = get_billboard_chart('top-albums', billboard_api_key)  # Fetches the
 
 # Process and display the retrieved data as needed
 
-# 30000 stations integration
-def find_stations_playing_track(track_name, radio_api_key):
-    RADIO_STATIONS_API_URL = 'https://api.30000radiostations.com/search'
+
+
+
+
+# Radios Browser Integration
+def find_stations_playing_track(track_name):
+    RADIOS_BROWSER_API_URL = 'https://api.radios-browser.com/v2/'
 
     params = {
-        'api_key': radio_api_key,
-        'q': track_name,
+        'name': track_name,
         'limit': 10  # Adjust limit as needed
     }
 
-    response = requests.get(RADIO_STATIONS_API_URL, params=params)
+    response = requests.get(f"{RADIOS_BROWSER_API_URL}stations/search", params=params)
     if response.status_code == 200:
         stations_data = response.json()
-        return stations_data['stations'] if 'stations' in stations_data else None
+        return stations_data['hits'] if 'hits' in stations_data else None
     else:
         return None
 
-
-# Example: Find stations playing the top song from Billboard's Hot 100 chart
-if top_songs:
-    top_song_name = top_songs[0]['title']
-    radio_stations_api_key = 'YOUR_RADIO_STATIONS_API_KEY'  # Replace with your Radio Stations API key
-    stations_playing_top_song = find_stations_playing_track(top_song_name, radio_stations_api_key)
-    if stations_playing_top_song:
+# Example: Find stations playing a specific track
+if __name__ == "__main__":
+    track_name = "Song Name"  # Replace with the desired track name
+    stations_playing_track = find_stations_playing_track(track_name)
+    if stations_playing_track:
         # Process stations' data or display station information
-        for station in stations_playing_top_song:
-            print(station['name'], station['stream_url'])  # Hypothetical display of station names and streaming URLs
+        for station in stations_playing_track:
+            print(station['name'], station['url'])  # Display station names and streaming URLs
