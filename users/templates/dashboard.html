@@ -9,22 +9,32 @@
 
 <h1>Dashboard</h1>
 
-{% if playlists %}
-    <h2>Playlists</h2>
+{% if saved_songs %}
+    <h2>Saved Songs</h2>
     <ul>
-        {% for playlist in playlists %}
-            <li>{{ playlist.name }}</li>
-            <!-- Add other playlist fields as needed -->
+        {% for song in saved_songs %}
+            <li>{{ song.title }} by {{ song.artist.name }} - <a href="{% url 'user_profile' song.user_library.user_profile.user.username %}">{{ song.user_library.user_profile.user.username }}</a></li>
+            <!-- Add other song fields as needed -->
         {% endfor %}
     </ul>
 {% endif %}
 
-{% if recently_played %}
-    <h2>Recently Played</h2>
+{% if saved_albums %}
+    <h2>Saved Albums</h2>
     <ul>
-        {% for song in recently_played %}
-            <li>{{ song.title }} by {{ song.artist.name }}</li>
-            <!-- Add other recently played song fields as needed -->
+        {% for album in saved_albums %}
+            <li>{{ album.title }} by {{ album.artist.name }} - <a href="{% url 'user_profile' album.user_library.user_profile.user.username %}">{{ album.user_library.user_profile.user.username }}</a></li>
+            <!-- Add other album fields as needed -->
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if favorite_artists %}
+    <h2>Favorite Artists</h2>
+    <ul>
+        {% for artist in favorite_artists %}
+            <li>{{ artist.name }} - <a href="{% url 'user_profile' artist.user_library.user_profile.user.username %}">{{ artist.user_library.user_profile.user.username }}</a></li>
+            <!-- Add other artist fields as needed -->
         {% endfor %}
     </ul>
 {% endif %}

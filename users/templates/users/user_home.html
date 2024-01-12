@@ -1,0 +1,50 @@
+<!-- users/templates/users/user_home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Home</title>
+</head>
+<body>
+
+<h1>Welcome, {{ request.user.username }}!</h1>
+
+<!-- Display user's music-related data -->
+<h2>Saved Songs</h2>
+<ul>
+    {% for song in saved_songs %}
+        <li>{{ song.title }} by {{ song.artist.name }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Saved Albums</h2>
+<ul>
+    {% for album in saved_albums %}
+        <li>{{ album.title }} by {{ album.artist.name }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Favorite Artists</h2>
+<ul>
+    {% for artist in favorite_artists %}
+        <li>{{ artist.name }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Created Playlists</h2>
+<ul>
+    {% for playlist in created_playlists %}
+        <li>{{ playlist.title }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Recently Played</h2>
+<ul>
+    {% for song in recently_played %}
+        <li>{{ song.title }} by {{ song.artist.name }}</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

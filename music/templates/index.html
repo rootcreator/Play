@@ -32,26 +32,27 @@
 
 
     <main>
-      <section id="songs">
+     <section id="songs">
     <h1>Songs</h1>
     <div class="row row-cols-1 row-cols-md-4 g-4">
-    {% for song in songs %}
-        <div class="col">
-            <div class="card h-100">
-                <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }} Cover">
-                <div class="card-body">
-                    <h5 class="card-title">{{ song.title }}</h5>
-                    <p class="card-text">By {{ song.artist.name }}</p>
-                    <p class="card-text">Rating: {{ song.get_rating_display }}</p>
-                    <!-- Include other song details if needed -->
-                </div>
-                <div class="card-footer">
-                    <button type="button" class="btn btn-primary btn-play" data-src="{{ song.audio_file.url }}">Play</button>
+        {% for song in songs %}
+            <div class="col">
+                <div class="card h-100">
+                    <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }} Cover">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ song.title }}</h5>
+                        <p class="card-text">By {{ song.artist.name }}</p>
+                        <p class="card-text">Rating: {{ song.get_rating_display }}</p>
+                        <!-- Include other song details if needed -->
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-primary btn-play" data-src="{{ song.audio_file.url }}">Play</button>
+                        <button type="button" class="btn btn-success btn-save" data-type="song" data-id="{{ song.id }}">Save</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
 </section>
 
 <!-- <section id="playlists">
@@ -145,6 +146,32 @@
         <!-- Footer content -->
         <p>&copy; 2024 Your Music App</p>
     </footer>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    // Save function using AJAX
+    $('.btn-save').on('click', function () {
+        const type = $(this).data('type');
+        const id = $(this).data('id');
+        const url = `/users/save/${type}/${id}/`;
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function (data) {
+                // Handle success (e.g., update UI to show item is saved)
+                console.log('Item saved successfully:', data);
+            },
+            error: function (error) {
+                // Handle error
+                console.error('Error saving item:', error);
+            }
+        });
+    });
+</script>
     <!-- Bootstrap JS CDN (Add this to your template if Bootstrap is not included) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
