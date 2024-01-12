@@ -13,8 +13,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -39,17 +39,18 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "dart.analysis.tool.window.visible": "false",
+    "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\USER\Desktop\Django\play\users\templates" />
       <recent name="C:\Users\USER\Desktop\Django\play\music\templates" />
       <recent name="C:\Users\USER\Desktop\Django\play\catalog\templates" />
       <recent name="C:\Users\USER\Desktop\Django\play\music\templates\music" />
       <recent name="C:\Users\USER\Desktop\Django\play\users\templates\users" />
-      <recent name="C:\Users\USER\Desktop\Django\play\users\templates" />
     </key>
   </component>
   <component name="RunManager">

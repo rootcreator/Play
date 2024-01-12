@@ -101,14 +101,7 @@ class PlaylistListCreateView(TemplateView):
         return context
 
 
-class UserProfileListCreateView(GenericListCreateView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSerializer
 
-
-class UserLibraryListCreateView(GenericListCreateView):
-    queryset = UserLibrary.objects.all()
-    serializer_class = UserLibrarySerializer
 
 
 class AudioFileListCreateView(GenericListCreateView):
@@ -116,9 +109,7 @@ class AudioFileListCreateView(GenericListCreateView):
     serializer_class = AudioFileSerializer
 
 
-class UserListCreateView(GenericListCreateView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+
 
 
 # Spotify Integration

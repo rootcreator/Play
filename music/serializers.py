@@ -1,5 +1,7 @@
 
 from rest_framework import serializers
+
+from users.models import UserProfile
 from .models import Genre, Artist, Album, Song, Playlist, UserProfile, UserLibrary, AudioFile, Composer
 from django.contrib.auth.models import User
 
@@ -76,3 +78,8 @@ class SpotifySerializer(serializers.Serializer):
 class SearchResultsSerializer(serializers.Serializer):
     local_results = serializers.DictField()
     spotify_results = SpotifySerializer()
+
+class UserProfileViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = '__all__'

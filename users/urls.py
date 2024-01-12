@@ -1,34 +1,30 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import UserProfileViewSet, UserLibraryViewSet, ListeningHistoryViewSet,  \
+    dashboard_view
+
+router = DefaultRouter()
+
+router.register(r'userprofiles', UserProfileViewSet, basename='userprofile')
+router.register(r'userlibraries', UserLibraryViewSet, basename='userlibrary')
+router.register(r'listeninghistories', ListeningHistoryViewSet, basename='listeninghistory')
 
 urlpatterns = [
-    # URL patterns for UserProfile
-    path('user-profiles/', views.UserProfileListCreateView.as_view(), name='userprofile-list'),
-    path('user-profiles/<int:pk>/', views.UserProfileDetailView.as_view(), name='userprofile-detail'),
+    path('api/', include(router.urls)),
+    #path('js-render/', JsRenderTemplateView.as_view(), name='js-render'),
+    #path('api/endpoint/', ApiEndpoint.as_view(), name='api-endpoint'),
+    # Add other URL patterns for non-API views if needed
+    path('dashboard/', dashboard_view, name='dashboard'),
+]
 
-    # URL patterns for UserLibrary
-    path('user-libraries/', views.UserLibraryListCreateView.as_view(), name='userlibrary-list'),
-    path('user-libraries/<int:pk>/', views.UserLibraryDetailView.as_view(), name='userlibrary-detail'),
-
-    # URL patterns for UserProfileView
-    path('user-profile-views/', views.UserProfileViewListCreateView.as_view(), name='profileview-list'),
-    path('user-profile-views/<int:pk>/', views.UserProfileViewDetailView.as_view(), name='profileview-detail'),
-
-    # Additional URL patterns for Songs
-    path('songs/', views.SongListCreateView.as_view(), name='song-list'),
-    path('songs/<int:pk>/', views.SongDetailView.as_view(), name='song-detail'),
-
-    # Additional URL patterns for Albums
-    path('albums/', views.AlbumListCreateView.as_view(), name='album-list'),
-    path('albums/<int:pk>/', views.AlbumDetailView.as_view(), name='album-detail'),
-
-    # Additional URL patterns for Playlists
-    path('playlists/', views.PlaylistListCreateView.as_view(), name='playlist-list'),
-    path('playlists/<int:pk>/', views.PlaylistDetailView.as_view(), name='playlist-detail'),
-
-    # Custom root API endpoint (if applicable)
-    path('', views.custom_api_root, name='custom-api-root'),
-    path('api/user-profile/', views.UserProfileDetailView.as_view(), name='user-profile'),
+# Override the default API root view to use a plain text response
+from rest_framework.routers import APIRootView
 
 
+class CustomAPIRootView(APIRootView):
+    renderer_classes = [APIRootView.renderer_classes[0]]
+
+
+urlpatterns += [
+    path('api/', CustomAPIRootView.as_view(), name='api-root'),
 ]

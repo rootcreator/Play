@@ -1,45 +1,67 @@
 from rest_framework import serializers
-from .models import UserProfile, UserLibrary, UserProfileView, Song, Album, \
-    Playlist  # Importing models from the current directory
+from django.contrib.auth.models import User
+from music.models import Song, Artist, Playlist, Album
+from .models import UserProfile, UserLibrary, ListeningHistory  # Add import for ListeningHistory
 
 
-# Serializer for UserProfile model
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile  # Specifies the model associated with this serializer
-        fields = '__all__'  # Includes all fields from the UserProfile model in serialization
+        model = User
+        fields = ('id', 'username', 'email')
 
 
-# Serializer for UserLibrary model
-class UserLibrarySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserLibrary  # Specifies the model associated with this serializer
-        fields = '__all__'  # Includes all fields from the UserLibrary model in serialization
-
-
-# Serializer for UserProfileView model
-class UserProfileViewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserProfileView  # Specifies the model associated with this serializer
-        fields = '__all__'  # Includes all fields from the UserProfileView model in serialization
-
-
-# Serializer for Song model
 class SongSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Song  # Specifies the model associated with this serializer
-        fields = '__all__'  # Includes all fields from the Song model in serialization
+        model = Song
+        fields = '__all__'
 
 
-# Serializer for Album model
 class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Album  # Specifies the model associated with this serializer
-        fields = '__all__'  # Includes all fields from the Album model in serialization
+        model = Album
+        fields = '__all__'
 
 
-# Serializer for Playlist model
+class ArtistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Artist
+        fields = '__all__'
+
+
 class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Playlist  # Specifies the model associated with this serializer
-        fields = '__all__'  # Includes all fields from the Playlist model in serialization
+        model = Playlist
+        fields = '__all__'
+
+
+class ListeningHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ListeningHistory
+        fields = ('id', 'user_library', 'song', 'listened_at')
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    saved_songs = SongSerializer(many=True)
+    saved_albums = AlbumSerializer(many=True)
+    favorite_artists = ArtistSerializer(many=True)
+    created_playlists = PlaylistSerializer(many=True)
+    recently_played = ListeningHistorySerializer(many=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ('id', 'user', 'profile_picture', 'bio', 'view_count', 'last_viewed',
+                  'saved_songs', 'saved_albums', 'favorite_artists', 'created_playlists', 'recently_played')
+
+
+class UserLibrarySerializer(serializers.ModelSerializer):
+    user_profile = UserProfileSerializer()
+    saved_songs = SongSerializer(many=True)
+    saved_albums = AlbumSerializer(many=True)
+    favorite_artists = ArtistSerializer(many=True)
+    created_playlists = PlaylistSerializer(many=True)
+    recently_played = ListeningHistorySerializer(many=True)
+
+    class Meta:
+        model = UserLibrary
+        fields = ('id', 'user_profile', 'saved_songs', 'saved_albums', 'favorite_artists', 'created_playlists', 'recently_played')

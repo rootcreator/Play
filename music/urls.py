@@ -8,10 +8,9 @@ urlpatterns = [
     path('music/albums/', views.AlbumListCreateView.as_view(), name='album-list'),
     path('music/songs/', views.SongListCreateView.as_view(), name='song-list'),
     path('music/playlists/', views.PlaylistListCreateView.as_view(), name='playlist-list'),
-    path('user-profiles/', views.UserProfileListCreateView.as_view(), name='user-profile-list'),
-    path('user-libraries/', views.UserLibraryListCreateView.as_view(), name='user-library-list'),
+
     path('audio-files/', views.AudioFileListCreateView.as_view(), name='audio-file-list'),
-    path('users/', views.UserListCreateView.as_view(), name='user-list'),
+
 
     path('search/', views.SearchView.as_view(), name='search'),
     path('add-song-to-library/', views.AddSongToLibraryView.as_view(), name='add-song-to-library'),
