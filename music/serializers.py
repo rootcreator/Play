@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 
 from users.models import UserProfile
@@ -16,6 +15,7 @@ class ComposerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Composer
         fields = '__all__'
+
 
 class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -78,6 +78,7 @@ class SpotifySerializer(serializers.Serializer):
 class SearchResultsSerializer(serializers.Serializer):
     local_results = serializers.DictField()
     spotify_results = SpotifySerializer()
+
 
 class UserProfileViewSerializer(serializers.ModelSerializer):
     class Meta:
