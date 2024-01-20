@@ -49,3 +49,12 @@ class ListeningHistory(models.Model):
 
     def __str__(self):
         return f"{self.song.title} listened at {self.listened_at}"
+
+
+class LikedSongs(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.song.title}"

@@ -1,11 +1,15 @@
 import requests
+from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, CreateView
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+from recommendations.recommendation_utils import profile_user, recommend_songs
 
 from music.models import Song
 from .models import UserProfile, UserLibrary, ListeningHistory
@@ -95,3 +99,37 @@ def save_item(request, item_type, item_id):
         message = 'Invalid item type.'
 
     return JsonResponse({'message': message})
+
+# Algorithm
+
+def user_profile_view(request):
+    # Assume you have a user object (replace it with your authentication logic)
+    user = request.user
+
+    # Get user profile
+    user_profile = profile_user(user)
+
+    # Get song recommendations
+    recommended_songs = recommend_songs(user_profile)
+
+    # Render the view with user profile and recommendations
+    return render(request, 'user_profile.html', {'user_profile': user_profile, 'recommended_songs': recommended_songs})
+
+#
+def user_registration_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # You may want to log in the user after registration
+            # login(request, user)
+            return redirect('login')  # Redirect to the login page after successful registration
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'registration/register.html', {'form': form})
+
+class SignUpView(CreateView):
+    form_class = UserCreationForm
+    success_url = reverse_lazy('login')  # You can replace 'login' with the name of your login URL
+    template_name = 'registration/signup.html'

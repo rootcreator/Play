@@ -1,192 +1,227 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Music Index</title>
+    <title>Music Home</title>
+    <!-- Add your head content here -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 <body>
     <header>
-        <h1>Music Index</h1>
+        <h1>Music Home</h1>
     </header>
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
+        <div class="container-fluid">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
     <main>
-     <section id="songs">
-    <h1>Songs</h1>
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for song in songs %}
-            <div class="col">
-                <div class="card h-100">
-                    <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }} Cover">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ song.title }}</h5>
-                        <p class="card-text">By {{ song.artist.name }}</p>
-                        <p class="card-text">Rating: {{ song.get_rating_display }}</p>
-                        <!-- Include other song details if needed -->
-                    </div>
-                    <div class="card-footer">
-                        <button type="button" class="btn btn-primary btn-play" data-src="{{ song.audio_file.url }}">Play</button>
-                        <button type="button" class="btn btn-success btn-save" data-type="song" data-id="{{ song.id }}">Save</button>
-                    </div>
+        <!-- Your content here -->
+        <h2>User Details</h2>
+        <p>Username: {{ user_profile.user.username }}</p>
+        <!-- Display other user details as needed -->
+
+        <h2>Recommended Songs</h2>
+        {% if recommended_songs %}
+            <ul>
+                {% for song in recommended_songs %}
+                    <li>{{ song }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No recommended songs available. Check back later!</p>
+        {% endif %}
+
+
+
+        <section id="songs">
+    <h2>All Songs</h2>
+    {% if songs %}
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for song in songs %}
+                <div class="col">
+                     <div class="card h-100">
+                            <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }} Cover">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ song.title }}</h5>
+                                <p class="card-text">By {{ song.artist.name }}</p>
+                                <p class="card-text">Rating: {{ song.get_rating_display }}</p>
+                                <!-- Include other song details if needed -->
+                            </div>
+                            <div class="card-footer">
+                                <button type="button" class="btn btn-primary btn-play" data-src="{{ song.audio_file.url }}">Play</button>
+                                <button type="button" class="btn btn-success btn-save" data-type="song" data-id="{{ song.id }}">Save</button>
+                            </div>
+                        </div>
+                    <!-- Your existing card content for songs -->
                 </div>
-            </div>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No songs available. Check back later!</p>
+    {% endif %}
 </section>
 
-<!-- <section id="playlists">
-    <h1>Playlists</h1>
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for playlist in playlists %}
-            <div class="col">
-                <div class="card h-100">
-                    <img src="{{ playlist.cover_image.url }}" class="card-img-top" alt="{{ playlist.title }} Cover">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ playlist.title }}</h5>
-                        <ul>
-                            {% for song in playlist.songs.all %}
-                                <li>{{ song.title }} by {{ song.artist.name }}</li>
-
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-</section> -->
-
-
-
-   <section id="albums">
-        <h1>Albums</h1>
+        <section id="albums">
+    <h2>Albums</h2>
+    {% if albums %}
         <div class="row row-cols-1 row-cols-md-4 g-4">
             {% for album in albums %}
                 <div class="col">
-                    <div class="card h-100">
-                        <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }} Cover">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ album.title }}</h5>
-                            <p class="card-text">By {{ album.artist.name }}</p>
-                            <p class="card-text">Genre: {{ album.genre.name }}</p>
-                            <p class="card-text">Rating: {{ album.get_rating_display }}</p>
-                            <!-- Include other album details if needed -->
+                    <!-- Your existing card content for albums -->
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }} Cover">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ album.title }}</h5>
+                                <p class="card-text">By {{ album.artist.name }}</p>
+                                <p class="card-text">Genre: {{ album.genre.name }}</p>
+                                <p class="card-text">Rating: {{ album.get_rating_display }}</p>
+                                <!-- Include other album details if needed -->
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
-    </section>
-
-
-    <section id="artists">
-    <h1>Artists</h1>
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for artist in artists %}
-            <div class="col">
-                <div class="card h-100">
-                    <!-- Add artist details to the card -->
-                    <div class="card-body">
-                        <h5 class="card-title">{{ artist.name }}</h5>
-                        <!-- Include other artist details as needed -->
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+    {% else %}
+        <p>No albums available. Check back later!</p>
+    {% endif %}
 </section>
 
 <section id="genres">
-    <h1>Genres</h1>
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for genre in genres %}
-            <div class="col">
-                <div class="card h-100">
-                    <!-- Add genre details to the card -->
-                    <div class="card-body">
-                        <h5 class="card-title">{{ genre.name }}</h5>
-                        <!-- Include other genre details as needed -->
+    <h2>Genres</h2>
+    {% if genres %}
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for genre in genres %}
+                <div class="col">
+                    <!-- Your existing card content for albums -->
+                    <div class="card h-100">
+                            <!-- Add genre details to the card -->
+                            <div class="card-body">
+                                <h5 class="card-title">{{ genre.name }}</h5>
+                                <!-- Include other genre details as needed -->
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No genres available. Check back later!</p>
+    {% endif %}
 </section>
+
+         <section id="artists">
+    <h2>Artists</h2>
+    {% if genres %}
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for artist in artists %}
+                <div class="col">
+                    <!-- Your existing card content for albums -->
+                    <div class="card h-100">
+                            <!-- Add genre details to the card -->
+                            <div class="card-body">
+                                <h5 class="card-title">{{ genre.name }}</h5>
+                                <!-- Include other genre details as needed -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No artists available. Check back later!</p>
+    {% endif %}
+</section>
+
+
     </main>
 
-    <footer>
-        <!-- Music player widget -->
-        <div class="music-player">
-            <audio id="music-player" controls>
-                Your browser does not support the audio element.
-            </audio>
-        </div>
+     <footer>
+            <!-- Music player widget -->
+            <div class="music-player">
+                <audio id="music-player" controls>
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
 
-        <!-- Footer content -->
-        <p>&copy; 2024 Your Music App</p>
-    </footer>
+            <!-- Footer content -->
+            <p>&copy; 2024 Your Music App</p>
+        </footer>
+    <!-- Include scripts... -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-<script>
-    // Save function using AJAX
-    $('.btn-save').on('click', function () {
-        const type = $(this).data('type');
-        const id = $(this).data('id');
-        const url = `/users/save/${type}/${id}/`;
+        <script>
+            // Save function using AJAX
+            $('.btn-save').on('click', function () {
+                const type = $(this).data('type');
+                const id = $(this).data('id');
+                const url = `/users/save/${type}/${id}/`;
 
-        $.ajax({
-            type: 'POST',
-            url: url,
-            data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function (data) {
-                // Handle success (e.g., update UI to show item is saved)
-                console.log('Item saved successfully:', data);
-            },
-            error: function (error) {
-                // Handle error
-                console.error('Error saving item:', error);
-            }
-        });
-    });
-</script>
-    <!-- Bootstrap JS CDN (Add this to your template if Bootstrap is not included) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (data) {
+                        // Handle success (e.g., update UI to show item is saved)
+                        console.log('Item saved successfully:', data);
+                    },
+                    error: function (error) {
+                        // Handle error
+                        console.error('Error saving item:', error);
+                    }
+                });
+            });
+        </script>
 
-    <script>
-        const songList = document.querySelectorAll('.song');
-
-        // Play selected song when clicked
-        songList.forEach(song => {
-            song.addEventListener('click', () => {
+        <script>
+            // Play function using AJAX
+            $('.btn-primary.btn-play').on('click', function () {
                 const audioPlayer = document.getElementById('music-player');
-                audioPlayer.src = song.dataset.src;
+                const audioSource = $(this).data('src');
+
+                // Update audio source and play
+                audioPlayer.src = audioSource;
                 audioPlayer.play();
             });
-        });
-    </script>
+        </script>
+
+        <script>
+            const songList = document.querySelectorAll('.col');
+
+            // Play selected song when clicked
+            songList.forEach(song => {
+                song.addEventListener('click', () => {
+                    const audioPlayer = document.getElementById('music-player');
+                    audioPlayer.src = song.querySelector('.btn-play').dataset.src;
+                    audioPlayer.play();
+                });
+            });
+        </script>
+
+    <!-- Bootstrap JS CDN (Add this to your template if Bootstrap is not included) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

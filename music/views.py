@@ -1,27 +1,13 @@
 from django.views.generic import TemplateView
 from pyradios import RadioBrowser
 from rest_framework.generics import ListCreateAPIView
-
 from rest_framework.renderers import TemplateHTMLRenderer
-
-import dropbox
-from django.db.models import Q
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-from users.models import UserLibrary
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.credentials import Credentials
-import os
-
 from rest_framework.response import Response
-import requests
-
 from rest_framework.views import APIView
 from django.shortcuts import render
 from django.http import JsonResponse
 
+from recommendations.recommendation_utils import recommend_songs, profile_user
 from . import radio_integrate
 from .music_video_integration import get_youtube_video
 from .search_utils import search
@@ -36,10 +22,22 @@ from .serializers import (
 )
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
+import dropbox
+from django.db.models import Q
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.credentials import Credentials
+import os
+import requests
+
 
 
 class GenericListCreateView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
 
 
 class GenreListCreateView(generics.ListCreateAPIView):
@@ -55,11 +53,13 @@ class ArtistListCreateView(GenericListCreateView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'artists.html'
 
+
 class AlbumListCreateView(GenericListCreateView):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'albums.html'
+
 
 class AlbumListCreateView(TemplateView):
     template_name = 'albums.html'
@@ -75,6 +75,7 @@ class SongListCreateView(GenericListCreateView):
     serializer_class = SongSerializer
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'songs.html'
+
 
 class SongListCreateView(TemplateView):
     template_name = 'songs.html'
@@ -101,31 +102,9 @@ class PlaylistListCreateView(TemplateView):
         return context
 
 
-
-
-
 class AudioFileListCreateView(GenericListCreateView):
     queryset = AudioFile.objects.all()
     serializer_class = AudioFileSerializer
-
-
-
-
-
-# Spotify Integration
-def search_spotify(request):
-    if request.method == 'GET':
-        query = request.GET.get('q')
-        if query:
-            song_info, album_info, artist_info = get_spotify_song_info(query)
-            context = {
-                'song_info': song_info,
-                'album_info': album_info,
-                'artist_info': artist_info,
-                'query': query,
-            }
-            return JsonResponse({'song_info': song_info, 'album_info': album_info, 'artist_info': artist_info})
-        return render(request, 'search.html')
 
 
 # Storage integration
@@ -481,7 +460,7 @@ class TrendsIntegration(APIView):
 # Search Utility
 class SearchView(APIView):
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'search_results.html'  # Specify the name of your HTML template
+    template_name = 'search_results.html'
 
     def get(self, request):
         query = request.GET.get('q')
@@ -505,9 +484,21 @@ class SearchView(APIView):
             'playlists': PlaylistSerializer(playlists, many=True).data,
         }
 
+        # Spotify search
+        if query:
+            song_info, album_info, artist_info = get_spotify_song_info(query)
+            spotify_results = {
+                'song_info': song_info,
+                'album_info': album_info,
+                'artist_info': artist_info,
+            }
+        else:
+            spotify_results = {}
+
         # Combine serialized data for the template
         serialized_data = {
             'local_results': serialized_local_results,
+            'spotify_results': spotify_results,
         }
 
         return Response(serialized_data)
@@ -582,14 +573,46 @@ def display_radio_stations(request):
 # Index
 
 def index(request):
+    # Check if the user is authenticated
+    if request.user.is_authenticated:
+        # Get user profile
+        user = request.user  # This should be an instance of User model
+        user_profile = profile_user(user)
+
+        # Get all songs, albums, artists, and genres
+        songs = Song.objects.all()
+        albums = Album.objects.all()
+        artists = Artist.objects.all()
+        genres = Genre.objects.all()
+
+        # Get song recommendations
+        recommended_songs = recommend_songs(user_profile)
+
+        # Render the music home view with all data
+        return render(request, 'index.html', {
+            'user_profile': user_profile,
+            'recommended_songs': recommended_songs,
+            'songs': songs,
+            'albums': albums,
+            'artists': artists,
+            'genres': genres,
+        })
+    else:
+        # Handle the case when the user is not authenticated
+        return render(request, 'index.html', {'user_profile': None, 'recommended_songs': None, 'songs': None, 'albums': None, 'artists': None, 'genres': None})
+
+
+def music_home(request):
     songs = Song.objects.all()
     albums = Album.objects.all()
     artists = Artist.objects.all()
     genres = Genre.objects.all()
+    # ... fetch other data as needed ...
 
     return render(request, 'index.html', {
         'songs': songs,
         'albums': albums,
         'artists': artists,
         'genres': genres,
+        # ... include other data in the context ...
     })
