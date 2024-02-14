@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Home</title>
-    <!-- Add your head content here -->
+    <!-- Bootstrap CSS CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 <body>
-    <header>
+    <header class="text-center mt-3">
         <h1>Music Home</h1>
     </header>
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
+        <div class="container">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/search">Search</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/radio">Radio Stations</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
                 </li>
@@ -30,35 +37,40 @@
                     <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
                 </li>
             </ul>
+            <!-- Search form
+            <form class="d-flex">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                <button class="btn btn-outline-success" type="button" id="searchButton">Search</button>
+            </form> -->
         </div>
     </nav>
 
-    <main>
-        <!-- Your content here -->
-        <h2>User Details</h2>
-        <p>Username: {{ user_profile.user.username }}</p>
-        <!-- Display other user details as needed -->
+    <main class="container mt-3">
+        <section id="user-details">
+            <h2>User Details</h2>
+            <p>Username: {{ user_profile.user.username }}</p>
+            <!-- Display other user details as needed -->
+        </section>
 
-        <h2>Recommended Songs</h2>
-        {% if recommended_songs %}
-            <ul>
-                {% for song in recommended_songs %}
-                    <li>{{ song }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No recommended songs available. Check back later!</p>
-        {% endif %}
-
-
+        <section id="recommended-songs">
+            <h2>Recommended Songs</h2>
+            {% if recommended_songs %}
+                <ul>
+                    {% for song in recommended_songs %}
+                        <li>{{ song }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No recommended songs available. Check back later!</p>
+            {% endif %}
+        </section>
 
         <section id="songs">
-    <h2>All Songs</h2>
-    {% if songs %}
-        <div class="row row-cols-1 row-cols-md-4 g-4">
-            {% for song in songs %}
-                <div class="col">
-                     <div class="card h-100">
+            <h2>All Songs</h2>
+            <div class="row row-cols-1 row-cols-lg-4 g-3">
+                {% for song in songs %}
+                    <div class="col">
+                        <div class="card h-100">
                             <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }} Cover">
                             <div class="card-body">
                                 <h5 class="card-title">{{ song.title }}</h5>
@@ -71,22 +83,15 @@
                                 <button type="button" class="btn btn-success btn-save" data-type="song" data-id="{{ song.id }}">Save</button>
                             </div>
                         </div>
-                    <!-- Your existing card content for songs -->
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No songs available. Check back later!</p>
-    {% endif %}
-</section>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
 
         <section id="albums">
-    <h2>Albums</h2>
-    {% if albums %}
-        <div class="row row-cols-1 row-cols-md-4 g-4">
-            {% for album in albums %}
-                <div class="col">
-                    <!-- Your existing card content for albums -->
+            <h2>Albums</h2>
+            <div class="row row-cols-1 row-cols-lg-4 g-3">
+                {% for album in albums %}
                     <div class="col">
                         <div class="card h-100">
                             <img src="{{ album.cover_image.url }}" class="card-img-top" alt="{{ album.title }} Cover">
@@ -99,129 +104,125 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No albums available. Check back later!</p>
-    {% endif %}
-</section>
+                {% endfor %}
+            </div>
+        </section>
 
-<section id="genres">
-    <h2>Genres</h2>
-    {% if genres %}
-        <div class="row row-cols-1 row-cols-md-4 g-4">
-            {% for genre in genres %}
-                <div class="col">
-                    <!-- Your existing card content for albums -->
-                    <div class="card h-100">
-                            <!-- Add genre details to the card -->
+        <section id="genres">
+            <h2>Genres</h2>
+            <div class="row row-cols-1 row-cols-lg-4 g-3">
+                {% for genre in genres %}
+                    <div class="col">
+                        <div class="card h-100">
                             <div class="card-body">
                                 <h5 class="card-title">{{ genre.name }}</h5>
                                 <!-- Include other genre details as needed -->
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No genres available. Check back later!</p>
-    {% endif %}
-</section>
+                {% endfor %}
+            </div>
+        </section>
 
-         <section id="artists">
-    <h2>Artists</h2>
-    {% if genres %}
-        <div class="row row-cols-1 row-cols-md-4 g-4">
-            {% for artist in artists %}
-                <div class="col">
-                    <!-- Your existing card content for albums -->
-                    <div class="card h-100">
-                            <!-- Add genre details to the card -->
+        <section id="artists">
+            <h2>Artists</h2>
+            <div class="row row-cols-1 row-cols-lg-4 g-3">
+                {% for artist in artists %}
+                    <div class="col">
+                        <div class="card h-100">
                             <div class="card-body">
-                                <h5 class="card-title">{{ genre.name }}</h5>
-                                <!-- Include other genre details as needed -->
+                                <h5 class="card-title">{{ artist.name }}</h5>
+                                <!-- Include other artist details as needed -->
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No artists available. Check back later!</p>
-    {% endif %}
-</section>
-
-
+                {% endfor %}
+            </div>
+        </section>
     </main>
 
-     <footer>
-            <!-- Music player widget -->
-            <div class="music-player">
-                <audio id="music-player" controls>
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
+    <footer class="text-center mt-3">
+        <!-- Music player widget -->
+        <div class="music-player">
+            <audio id="music-player" controls>
+                Your browser does not support the audio element.
+            </audio>
+        </div>
 
-            <!-- Footer content -->
-            <p>&copy; 2024 Your Music App</p>
-        </footer>
-    <!-- Include scripts... -->
+        <!-- Footer content -->
+        <p>&copy; 2024 Your Music App</p>
+    </footer>
+
+    <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-        <script>
-            // Save function using AJAX
-            $('.btn-save').on('click', function () {
-                const type = $(this).data('type');
-                const id = $(this).data('id');
-                const url = `/users/save/${type}/${id}/`;
+    <!-- Custom JavaScript -->
+    <script>
+        // Save function using AJAX
+        $('.btn-save').on('click', function () {
+            const type = $(this).data('type');
+            const id = $(this).data('id');
+            const url = `/users/save/${type}/${id}/`;
 
-                $.ajax({
-                    type: 'POST',
-                    url: url,
-                    data: {
-                        csrfmiddlewaretoken: '{{ csrf_token }}'
-                    },
-                    success: function (data) {
-                        // Handle success (e.g., update UI to show item is saved)
-                        console.log('Item saved successfully:', data);
-                    },
-                    error: function (error) {
-                        // Handle error
-                        console.error('Error saving item:', error);
-                    }
-                });
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (data) {
+                    // Handle success (e.g., update UI to show item is saved)
+                    console.log('Item saved successfully:', data);
+                },
+                error: function (error) {
+                    // Handle error
+                    console.error('Error saving item:', error);
+                }
             });
-        </script>
+        });
 
-        <script>
-            // Play function using AJAX
-            $('.btn-primary.btn-play').on('click', function () {
-                const audioPlayer = document.getElementById('music-player');
-                const audioSource = $(this).data('src');
+        // Play function using AJAX
+        $('.btn-primary.btn-play').on('click', function () {
+            const audioPlayer = document.getElementById('music-player');
+            const audioSource = $(this).data('src');
 
-                // Update audio source and play
-                audioPlayer.src = audioSource;
-                audioPlayer.play();
+            // Update audio source and play
+            audioPlayer.src = audioSource;
+            audioPlayer.play();
+        });
+
+        // Play selected song when clicked
+        $('.col').on('click', function () {
+            const audioPlayer = document.getElementById('music-player');
+            audioPlayer.src = $(this).find('.btn-play').data('src');
+            audioPlayer.play();
+        });
+
+         // Function to perform search
+        function performSearch(query) {
+            $.ajax({
+                type: 'GET',
+                url: `/search/?query=${query}`,
+                success: function (data) {
+                    // Update sections with search results
+                    // Example: $('#songs').html(data.songs);
+                },
+                error: function (error) {
+                    // Handle error
+                    console.error('Error performing search:', error);
+                }
             });
-        </script>
+        }
 
-        <script>
-            const songList = document.querySelectorAll('.col');
+        // Event listener for search form submission
+        $('form').on('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+            const query = $(this).find('input[type="search"]').val(); // Get search query
+            performSearch(query); // Perform search
+        });
+    </script>
 
-            // Play selected song when clicked
-            songList.forEach(song => {
-                song.addEventListener('click', () => {
-                    const audioPlayer = document.getElementById('music-player');
-                    audioPlayer.src = song.querySelector('.btn-play').dataset.src;
-                    audioPlayer.play();
-                });
-            });
-        </script>
-
-    <!-- Bootstrap JS CDN (Add this to your template if Bootstrap is not included) -->
+    <!-- Bootstrap JS CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

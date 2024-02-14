@@ -1,0 +1,17 @@
+<!-- radio.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Radio Stations</title>
+</head>
+<body>
+    <h1>Radio Stations</h1>
+    <ul>
+        {% for station in stations %}
+            <li>{{ station.name }} - {{ station.frequency }} MHz - {{ station.genre }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

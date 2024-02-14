@@ -9,7 +9,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from recommendations.recommendation_utils import profile_user, recommend_songs
+from jam.recommendation_utils import profile_user, recommend_songs
 
 from music.models import Song
 from .models import UserProfile, UserLibrary, ListeningHistory
@@ -109,10 +109,10 @@ def user_profile_view(request):
     # Get user profile
     user_profile = profile_user(user)
 
-    # Get song recommendations
+    # Get song jam
     recommended_songs = recommend_songs(user_profile)
 
-    # Render the view with user profile and recommendations
+    # Render the view with user profile and jam
     return render(request, 'user_profile.html', {'user_profile': user_profile, 'recommended_songs': recommended_songs})
 
 #

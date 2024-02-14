@@ -46,11 +46,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\USER\Desktop\Django\play\users\templates\users" />
-      <recent name="C:\Users\USER\Desktop\Django\play\users\templates" />
       <recent name="C:\Users\USER\Desktop\Django\play\music\templates" />
-      <recent name="C:\Users\USER\Desktop\Django\play\catalog\templates" />
+      <recent name="C:\Users\USER\Desktop\Django\play\music" />
       <recent name="C:\Users\USER\Desktop\Django\play\music\templates\music" />
+      <recent name="C:\Users\USER\Desktop\Django\play\music\templates\static" />
+      <recent name="C:\Users\USER\Desktop\Django\play\music\templates\js" />
     </key>
   </component>
   <component name="RunManager">

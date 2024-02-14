@@ -1,27 +1,21 @@
+from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
-from pyradios import RadioBrowser
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.decorators import api_view
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
+from jam.recommendation_utils import recommend_songs, profile_user
 
-from recommendations.recommendation_utils import recommend_songs, profile_user
-from . import radio_integrate
-from .music_video_integration import get_youtube_video
-from .search_utils import search
-from .spotify_integration import get_spotify_song_info
 from rest_framework import generics, status
 from .models import (
-    Genre, Artist, Album, Song, Playlist, UserProfile, UserLibrary, AudioFile
+    Genre, Artist, Album, Song, Playlist, UserLibrary, AudioFile
 )
+
 from .serializers import (
-    GenreSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, UserProfileSerializer,
-    UserLibrarySerializer, AudioFileSerializer, UserSerializer, SpotifySerializer
+    GenreSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, AudioFileSerializer
 )
-from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticated
 import dropbox
 from django.db.models import Q
 import spotipy
@@ -30,9 +24,11 @@ from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.credentials import Credentials
+
 import os
 import requests
 
+from django.shortcuts import render
 
 
 class GenericListCreateView(generics.ListCreateAPIView):
@@ -40,25 +36,22 @@ class GenericListCreateView(generics.ListCreateAPIView):
     serializer_class = GenreSerializer
 
 
-class GenreListCreateView(generics.ListCreateAPIView):
-    queryset = Genre.objects.all().order_by('name')
-    serializer_class = GenreSerializer
-    renderer_classes = [TemplateHTMLRenderer]
+class GenreListCreateView(TemplateView):
     template_name = 'genres.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['genres'] = Genre.objects.all()  # Fetch all songs
+        return context
 
-class ArtistListCreateView(GenericListCreateView):
-    queryset = Artist.objects.all()
-    serializer_class = ArtistSerializer
-    renderer_classes = [TemplateHTMLRenderer]
+
+class ArtistListCreateView(TemplateView):
     template_name = 'artists.html'
 
-
-class AlbumListCreateView(GenericListCreateView):
-    queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'albums.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['artists'] = Artist.objects.all()  # Fetch all songs
+        return context
 
 
 class AlbumListCreateView(TemplateView):
@@ -66,15 +59,8 @@ class AlbumListCreateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['albums'] = Album.objects.all()  # Fetch all songs
+        context['albums'] = Album.objects.all()
         return context
-
-
-class SongListCreateView(GenericListCreateView):
-    queryset = Song.objects.all()
-    serializer_class = SongSerializer
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'songs.html'
 
 
 class SongListCreateView(TemplateView):
@@ -86,11 +72,9 @@ class SongListCreateView(TemplateView):
         return context
 
 
-class PlaylistListCreateView(GenericListCreateView):
-    queryset = Playlist.objects.all()
-    serializer_class = PlaylistSerializer
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'playlists.html'
+def song_detail(request, song_id):
+    song = Song.objects.get(id=song_id)
+    return render(request, 'song_detail.html', {'song': song})
 
 
 class PlaylistListCreateView(TemplateView):
@@ -107,6 +91,36 @@ class AudioFileListCreateView(GenericListCreateView):
     serializer_class = AudioFileSerializer
 
 
+#page details
+class AlbumDetailView(TemplateView):
+    template_name = 'album_detail.html'
+
+    def get_context_data(self, **kwargs):
+        album_id = kwargs['album_id']  # Access 'album_id' instead of 'pk'
+        album = get_object_or_404(Album, id=album_id)  # Use 'id' instead of 'pk'
+        context = super().get_context_data(**kwargs)
+        context['album'] = album
+        return context
+
+class PlaylistDetailView(TemplateView):
+    template_name = 'playlist_detail.html'
+
+    def get_context_data(self, **kwargs):
+        playlist_id = kwargs['playlist_id']
+        playlist = Playlist.objects.get(id=playlist_id)
+        context = super().get_context_data(**kwargs)
+        context['playlist'] = playlist
+        return context
+
+class ArtistDetailView(TemplateView):
+    template_name = 'artist_detail.html'
+
+    def get_context_data(self, **kwargs):
+        artist_id = kwargs['artist_id']
+        artist = Artist.objects.get(id=artist_id)
+        context = super().get_context_data(**kwargs)
+        context['artist'] = artist
+        return context
 # Storage integration
 
 # Dropbox configurations
@@ -124,18 +138,7 @@ class FileUploadView(APIView):
             dbx.files_upload(f.read(), destination_path)
 
     def upload_to_google_drive(self, file_path, file_name, folder_id=None):
-        creds = None
-        if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json')
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    GOOGLE_DRIVE_CREDENTIALS_FILE, SCOPES)
-                creds = flow.run_local_server(port=0)
-            with open('token.json', 'w') as token:
-                token.write(creds.to_json())
+        creds = self.get_google_drive_credentials()
 
         service = build('drive', 'v3', credentials=creds)
 
@@ -147,7 +150,7 @@ class FileUploadView(APIView):
         service.files().create(body=file_metadata, media_body=media).execute()
 
     def list_files_from_google_drive(self):
-        creds = Credentials.from_authorized_user_file('token.json')
+        creds = self.get_google_drive_credentials()
         service = build('drive', 'v3', credentials=creds)
         results = service.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
         items = results.get('files', [])
@@ -157,6 +160,31 @@ class FileUploadView(APIView):
             print('Files:')
             for item in items:
                 print(f"{item['name']} ({item['id']})")
+
+    def get_google_drive_credentials(self):
+        creds = None
+        if os.path.exists('token.json'):
+            creds = Credentials.from_authorized_user_file('token.json')
+        if not creds or not creds.valid:
+            creds = self.refresh_or_generate_credentials(creds)
+
+        return creds
+
+    def refresh_or_generate_credentials(self, creds):
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            creds = self.generate_new_credentials()
+
+        return creds
+
+    def generate_new_credentials(self):
+        flow = InstalledAppFlow.from_client_secrets_file(GOOGLE_DRIVE_CREDENTIALS_FILE, SCOPES)
+        creds = flow.run_local_server(port=0)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+
+        return creds
 
     def post(self, request):
         if request.method == 'POST':
@@ -177,69 +205,6 @@ class FileUploadView(APIView):
             return JsonResponse({'message': 'File uploaded successfully'})
 
         return JsonResponse({'message': 'Invalid request method'}, status=400)
-
-
-# Music_Video Integration
-# Initialize Spotify and YouTube API clients
-SPOTIFY_CLIENT_ID = 'YOUR_SPOTIFY_CLIENT_ID'
-SPOTIFY_CLIENT_SECRET = 'YOUR_SPOTIFY_CLIENT_SECRET'
-YOUTUBE_API_KEY = 'YOUR_YOUTUBE_API_KEY'
-
-sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(
-    client_id=SPOTIFY_CLIENT_ID, client_secret=SPOTIFY_CLIENT_SECRET))
-youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
-
-
-class SongLibraryView(APIView):
-    def get_youtube_video(self, track_name, artist_name):
-        search_query = f"{track_name} {artist_name} official music video"
-        search_response = youtube.search().list(
-            q=search_query,
-            part='id',
-            maxResults=1,
-            type='video'
-        ).execute()
-
-        if 'items' in search_response and search_response['items']:
-            video_id = search_response['items'][0]['id']['videoId']
-            video_url = f'https://www.youtube.com/watch?v={video_id}'
-            return video_url
-        else:
-            return None
-
-    def get_spotify_song_info(self, track_name):
-        track = sp.search(q=track_name, limit=1, type='track')
-
-        if track['tracks']['items']:
-            track = track['tracks']['items'][0]
-            song_title = track['name']
-            artist_name = track['artists'][0]['name']
-            return song_title, artist_name
-        else:
-            return None, None
-
-    def post(self, request):
-        track_name = request.data.get('track_name')
-        user_profile = request.user.music_user_profile  # Assuming user is authenticated and has a profile
-
-        if track_name and user_profile:
-            song_title, artist_name = self.get_spotify_song_info(track_name)
-
-            if song_title and artist_name:
-                song = Song.objects.get_or_create(title=song_title)[0]
-                artist = Artist.objects.get_or_create(name=artist_name)[0]
-
-                if song and artist:
-                    user_library = UserLibrary.objects.get_or_create(user_profile=user_profile)[0]
-                    user_library.saved_songs.add(song)
-
-                    video_url = self.get_youtube_video(song_title, artist_name)
-                    if video_url:
-                        song.youtube_url = video_url
-                        song.save()
-                        return Response(f"Song '{song_title}' added to library with YouTube link: {video_url}")
-
-        return Response("Failed to add song to library or find YouTube video", status=400)
 
 
 # Spotify Integration
@@ -393,7 +358,7 @@ class LastFmIntegration(APIView):
         if not username:
             return Response("Username is required.", status=400)
 
-        # Example: Get recommendations for the user
+        # Example: Get jam for the user
         recommendations = self.get_recommendations_for_user(username)
 
         # Example: Get top tracks for the user
@@ -405,7 +370,7 @@ class LastFmIntegration(APIView):
         track_info = self.get_track_info(track_name, artist_name) if track_name and artist_name else None
 
         response_data = {
-            'recommendations': recommendations,
+            'jam': recommendations,
             'top_tracks': top_tracks,
             'track_info': track_info,
         }
@@ -428,39 +393,11 @@ class TrendsIntegration(APIView):
         else:
             return None
 
-    def find_stations_playing_track(self, track_name, radio_api_key):
-        radio_stations_api_url = 'https://api.30000radiostations.com/search'
-        params = {'api_key': radio_api_key, 'q': track_name, 'limit': 10}
-        response = requests.get(radio_stations_api_url, params=params)
-
-        if response.status_code == 200:
-            stations_data = response.json()
-            return stations_data['stations'] if 'stations' in stations_data else None
-        else:
-            return None
-
-    def get(self, request):
-        # Example usage: Get Billboard chart data
-        chart_type = request.query_params.get('chart_type')  # Get the chart type from query parameters
-        api_key = 'YOUR_API_KEY'  # Replace with your Billboard API key
-        billboard_chart = self.get_billboard_chart(chart_type, api_key) if chart_type else None
-
-        # Example usage: Find radio stations playing a track
-        track_name = request.query_params.get('track_name')  # Get the track name from query parameters
-        radio_api_key = 'YOUR_RADIO_API_KEY'  # Replace with your radio stations API key
-        stations_playing_track = self.find_stations_playing_track(track_name, radio_api_key) if track_name else None
-
-        response_data = {
-            'billboard_chart': billboard_chart,
-            'stations_playing_track': stations_playing_track,
-        }
-        return Response(response_data)
-
 
 # Search Utility
 class SearchView(APIView):
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'search_results.html'
+    render_classes = [TemplateHTMLRenderer]
+    template_name = 'search.html'
 
     def get(self, request):
         query = request.GET.get('q')
@@ -484,90 +421,12 @@ class SearchView(APIView):
             'playlists': PlaylistSerializer(playlists, many=True).data,
         }
 
-        # Spotify search
-        if query:
-            song_info, album_info, artist_info = get_spotify_song_info(query)
-            spotify_results = {
-                'song_info': song_info,
-                'album_info': album_info,
-                'artist_info': artist_info,
-            }
-        else:
-            spotify_results = {}
-
-        # Combine serialized data for the template
+        # Combine serialized data for the templates
         serialized_data = {
             'local_results': serialized_local_results,
-            'spotify_results': spotify_results,
         }
 
         return Response(serialized_data)
-
-
-# Add song to Library
-class AddSongToLibraryView(APIView):
-    def post(self, request):
-        track_name = request.data.get('track_name')
-        user_profile = request.user.music_user_profile  # Assuming user is authenticated and has a profile
-
-        if track_name and user_profile:
-            song_title, artist_name = get_spotify_song_info(track_name)
-
-            if song_title and artist_name:
-                song, _ = Song.objects.get_or_create(title=song_title)  # Create or retrieve the song
-
-                user_library = UserLibrary.objects.get_or_create(user_profile=user_profile)[0]
-                user_library.saved_songs.add(song)
-
-                video_url = get_youtube_video(song_title, artist_name)
-                if video_url:
-                    song.youtube_url = video_url
-                    song.save()
-                    return Response(f"Song '{song_title}' added to library with YouTube link: {video_url}")
-
-        return Response("Failed to add song to library or find YouTube video", status=status.HTTP_400_BAD_REQUEST)
-
-
-# Radio
-def fetch_radio_server_data(server_urls):
-    server_data = []
-
-    for url in server_urls:
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                # Assuming received data is JSON; adjust this based on the actual response format
-                server_data.append({'url': url, 'data': response.json()})
-            else:
-                server_data.append(
-                    {'url': url, 'data': f"Failed to fetch data from {url}. Status code: {response.status_code}"})
-        except requests.RequestException as e:
-            server_data.append({'url': url, 'data': f"Failed to fetch data from {url}. Error: {str(e)}"})
-
-    return server_data
-
-
-def display_radio_stations(request):
-    if request.method == 'POST':
-        track_name = request.POST.get('track_name', '')  # Get track name from POST data
-
-        rb = RadioBrowser()  # Create an instance of the RadioBrowser class
-        stations = rb.search(name=track_name, name_exact=True)  # Search for radio stations by track name
-
-        # List of radio server URLs (replace with your own list)
-        server_urls = ['all.api.radio-browser.info']
-
-        # Fetch data from the list of radio servers
-        server_data = fetch_radio_server_data(server_urls)
-
-        context = {
-            'track_name': track_name,
-            'stations': stations,
-            'server_data': server_data
-        }
-        return render(request, 'radio_stations.html', context)
-
-    return render(request, 'search_track.html')  # Render a template with a form for input
 
 
 # Index
@@ -585,7 +444,7 @@ def index(request):
         artists = Artist.objects.all()
         genres = Genre.objects.all()
 
-        # Get song recommendations
+        # Get song jam
         recommended_songs = recommend_songs(user_profile)
 
         # Render the music home view with all data
@@ -599,7 +458,9 @@ def index(request):
         })
     else:
         # Handle the case when the user is not authenticated
-        return render(request, 'index.html', {'user_profile': None, 'recommended_songs': None, 'songs': None, 'albums': None, 'artists': None, 'genres': None})
+        return render(request, 'index.html',
+                      {'user_profile': None, 'recommended_songs': None, 'songs': None, 'albums': None, 'artists': None,
+                       'genres': None})
 
 
 def music_home(request):
@@ -616,3 +477,55 @@ def music_home(request):
         'genres': genres,
         # ... include other data in the context ...
     })
+
+
+# Saavn
+
+def fetch_saavn_track_info(request, track_id):
+    saavn_api_url = f'https://www.jiosaavn.com/api.php?p=getSongDetails&n={track_id}'
+
+    response = requests.get(saavn_api_url)
+
+    if response.status_code == 200:
+        data = response.json()
+        return JsonResponse(data)
+    else:
+        return JsonResponse({'error': 'Failed to fetch Saavn track information.'}, status=response.status_code)
+
+
+# Library
+
+@api_view(['POST'])
+def add_to_library(request, content_type, content_id):
+    user_profile = request.user.profile  # Assuming you have a UserProfile associated with the user
+    user_library = get_object_or_404(UserLibrary, user_profile=user_profile)
+
+    if content_type == 'song':
+        content = get_object_or_404(Song, id=content_id)
+        user_library.add_to_library(content, 'song')
+        serializer = SongSerializer(content)
+    elif content_type == 'album':
+        content = get_object_or_404(Album, id=content_id)
+        user_library.add_to_library(content, 'album')
+        serializer = AlbumSerializer(content)
+    else:
+        return Response({'detail': 'Invalid content type'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+def remove_from_library(request, content_type, content_id):
+    user_profile = request.user.profile
+    user_library = get_object_or_404(UserLibrary, user_profile=user_profile)
+
+    if content_type == 'song':
+        content = get_object_or_404(Song, id=content_id)
+        user_library.remove_from_library(content, 'song')
+    elif content_type == 'album':
+        content = get_object_or_404(Album, id=content_id)
+        user_library.remove_from_library(content, 'album')
+    else:
+        return Response({'detail': 'Invalid content type'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'detail': 'Content removed from library'}, status=status.HTTP_204_NO_CONTENT)

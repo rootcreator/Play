@@ -32,6 +32,8 @@ urlpatterns = [
     path('api/', include('users.urls')),
     path('api/', include('music.urls')),
     path('', RedirectView.as_view(url='/music/')),
+    path('', include('radio.urls')),
+    path('music/', include('music_player.urls')),
 
 
 

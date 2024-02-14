@@ -1,19 +1,13 @@
 from rest_framework import serializers
 
 from users.models import UserProfile
-from .models import Genre, Artist, Album, Song, Playlist, UserProfile, UserLibrary, AudioFile, Composer
+from .models import Genre, Artist, Album, Song, Playlist, UserProfile, UserLibrary, AudioFile
 from django.contrib.auth.models import User
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = '__all__'
-
-
-class ComposerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Composer
         fields = '__all__'
 
 

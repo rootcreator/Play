@@ -1,70 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>List of Artists</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artists</title>
+    <!-- Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
     <style>
         /* Custom styling */
-        .playlist-container {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .navbar {
+            background-color: #e9ecef;
+        }
+        .navbar-nav .nav-link {
+            color: #333;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #007bff;
+        }
+        .artist-container {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: space-around;
             margin-top: 20px;
         }
-        .playlist-card {
-            width: 23%;
+        .artist-card {
+            width: 30%;
             margin-bottom: 20px;
-            border: 1px solid #ddd;
+            border: 1px solid #dee2e6;
             border-radius: 5px;
-            padding: 10px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
         }
-        .playlist-card h3 {
-            margin-top: 0;
+        .artist-card:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .artist-card h3 {
+            margin-top: 10px;
             margin-bottom: 10px;
+            text-align: center;
         }
-        .playlist-card ul {
-            padding-left: 20px;
+        @media (max-width: 768px) {
+            .artist-card {
+                width: 45%;
+            }
         }
-        .playlist-card li {
-            list-style-type: none;
-            margin-bottom: 5px;
+        @media (max-width: 576px) {
+            .artist-card {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/search">Search</a>
+                </li>
             <li class="nav-item">
                 <a class="nav-link" href="http://127.0.0.1:8000/music/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/radio">Radio Stations</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
+                <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
-            </li>
         </ul>
     </div>
 </nav>
-<main>
-    <h1>List of Artists</h1>
-    <ul>
+
+<!-- Artists Container -->
+<div class="container">
+    <h2 class="text-center mt-4 mb-5">Artists</h2>
+    <div class="artist-container">
+        <!-- Loop through artists -->
         {% for artist in artists %}
-            <li>{{ artist.name }}</li> <!-- Assuming 'name' is a field in your Artist model -->
-            <!-- Add more fields from the Artist model as needed -->
+        <div class="artist-card">
+            <h3><a href="{% url 'artist_detail' artist.id %}">{{ artist.name }}</a></h3>
+            <!-- Include other artist details if needed -->
+        </div>
         {% empty %}
-            <li>No artists found.</li>
+        <p class="text-center">No artists found.</p>
         {% endfor %}
-    </ul>
-     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</main>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

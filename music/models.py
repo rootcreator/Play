@@ -12,18 +12,16 @@ class Genre(models.Model):
         return self.name
 
 
-class Composer(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
 class Artist(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    cover_image = models.ImageField(null=True, blank=True, upload_to='artist_covers/')
+    bio = models.TextField(blank=True)
+
 
     def __str__(self):
         return self.name
+
+
 
 
 class Song(models.Model):
@@ -40,9 +38,11 @@ class Song(models.Model):
     audio_file = models.FileField(upload_to='songs/')
     is_single = models.BooleanField(default=True)  # Indicates if it's a single or part of an album
     album = models.ForeignKey('Album', on_delete=models.CASCADE, null=True, blank=True)
-    composer = models.ForeignKey(Composer, on_delete=models.CASCADE, null=True, blank=True)
     rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
+    feature = models.ManyToManyField('Artist', related_name='featured', blank=True)
+    composer = models.CharField(max_length=100, blank=True, null=True)
+    producer = models.CharField(max_length=100, blank=True, null=True, unique=True)
 
     class Meta:
         unique_together = [['title', 'artist']]
@@ -61,7 +61,7 @@ class Album(models.Model):
 
     title = models.CharField(max_length=200)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
     rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
     songs = models.ManyToManyField(Song, related_name='albums', blank=True)
@@ -77,6 +77,7 @@ class Playlist(models.Model):
     title = models.CharField(max_length=200)
     cover_image = models.ImageField(upload_to='playlist_covers/')
     songs = models.ManyToManyField(Song)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = [['title']]
@@ -119,6 +120,46 @@ class UserLibrary(models.Model):
     def __str__(self):
         return f"Library of {self.user_profile.user.username}"
 
+    def add_to_library(self, content, content_type):
+        """
+        Add content to the user's library.
+
+        Parameters:
+        - content: The content instance to be added (e.g., Song, Album, Artist, Playlist, etc.).
+        - content_type: A string indicating the type of content ('song', 'album', 'artist', 'playlist', etc.).
+        """
+        if content_type == 'song':
+            self.saved_songs.add(content)
+        elif content_type == 'album':
+            self.saved_albums.add(content)
+        elif content_type == 'artist':
+            self.favorite_artists.add(content)
+        elif content_type == 'playlist':
+            self.created_playlists.add(content)
+        else:
+            # Handle other content types as needed
+            pass
+
+    def remove_from_library(self, content, content_type):
+        """
+        Remove content from the user's library.
+
+        Parameters:
+        - content: The content instance to be removed.
+        - content_type: A string indicating the type of content ('song', 'album', 'artist', 'playlist', etc.).
+        """
+        if content_type == 'song':
+            self.saved_songs.remove(content)
+        elif content_type == 'album':
+            self.saved_albums.remove(content)
+        elif content_type == 'artist':
+            self.favorite_artists.remove(content)
+        elif content_type == 'playlist':
+            self.created_playlists.remove(content)
+        else:
+            # Handle other content types as needed
+            pass
+
 
 class AudioFile(models.Model):
     title = models.CharField(max_length=100)
@@ -126,7 +167,6 @@ class AudioFile(models.Model):
 
     def __str__(self):
         return self.title
-
 
 
 class MusicAPI:
@@ -165,6 +205,3 @@ class MusicAPI:
     @staticmethod
     def fetch_songs():
         return MusicAPI.fetch_data('songs/')
-
-
-    
