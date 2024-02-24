@@ -1,20 +1,20 @@
 # jam/recommendation_utils.py
 
-from users.models import LikedSongs, ListeningHistory, UserProfile
+from users.models import Like, ListeningHistory, Profile
 from music.models import Genre, Artist, Playlist
 
 
 def profile_user(user):
     # Ensure that 'user' is a User instance
     try:
-        user_profile = UserProfile.objects.get(user=user)
-    except UserProfile.DoesNotExist:
+        user_profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
         # Handle the case where the UserProfile does not exist for the given User
         user_profile = None
 
     if user_profile:
         # Continue with your existing logic using 'user_profile' instead of 'user'
-        liked_songs = LikedSongs.objects.filter(user=user_profile)
+        liked_songs = Like.objects.filter(user=user_profile)
         listening_history = ListeningHistory.objects.filter(user_profile=user_profile)
         # ... rest of the code
 

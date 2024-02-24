@@ -1,15 +1,55 @@
 import requests
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    GENRE_CHOICES = [
+        ('Pop', 'Pop'),
+        ('Hip-hop/Rap', 'Hip-hop/Rap'),
+        ('R&B/Soul', 'R&B/Soul'),
+        ('Rock', 'Rock'),
+        ('Country', 'Country'),
+        ('Electronic/Dance', 'Electronic/Dance'),
+        ('Reggaeton', 'Reggaeton'),
+        ('Jazz', 'Jazz'),
+        ('Indie/Alternative', 'Indie/Alternative'),
+        ('Latin', 'Latin'),
+        ('Afrobeat', 'Afrobeat'),
+        ('Highlife', 'Highlife'),
+        ('Afrobeats', 'Afrobeats'),
+        ('Soukous', 'Soukous'),
+        ('Afro-house', 'Afro-house'),
+        ('Mbalax', 'Mbalax'),
+        ('Juju', 'Juju'),
+        ('Rai', 'Rai'),
+        ('Kizomba', 'Kizomba'),
+        ('Gqom', 'Gqom'),
+        ('Bollywood', 'Bollywood'),
+        ('K-pop', 'K-pop'),
+        ('J-pop', 'J-pop'),
+        ('C-pop', 'C-pop'),
+        ('Traditional_Asian', 'Traditional Asian'),
+        ('Classical', 'Classical'),
+        ('Folk', 'Folk'),
+        ('Reggae', 'Reggae'),
+        ('Metal', 'Metal'),
+        ('Samba', 'Samba'),
+        ('Cumbia', 'Cumbia'),
+        ('Bossa_Nova', 'Bossa Nova'),
+        ('Tango', 'Tango'),
+        ('Andean_music', 'Andean music'),
+        ('Zamba', 'Zamba'),
+        ('Axé', 'Axé'),
+        ('Forró', 'Forró'),
+        ('Indigenous', 'Indigenous'),
+    ]
+
+    genre = models.CharField(max_length=100, choices=GENRE_CHOICES)
 
     def __str__(self):
-        return self.name
+        return self.genre
 
 
 class Artist(models.Model):
@@ -17,11 +57,8 @@ class Artist(models.Model):
     cover_image = models.ImageField(null=True, blank=True, upload_to='artist_covers/')
     bio = models.TextField(blank=True)
 
-
     def __str__(self):
         return self.name
-
-
 
 
 class Song(models.Model):
@@ -86,79 +123,25 @@ class Playlist(models.Model):
         return self.title
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='music_user_profile')
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
-    bio = models.TextField(blank=True)
+class GenreRadio(models.Model):
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user.username
+        return f"{self.genre} Radio"
 
-    @receiver(post_save, sender=User)
-    def create_user_profile(sender, instance, created, **kwargs):
-        if created:
-            UserProfile.objects.create(user=instance)
-
-    @receiver(post_save, sender=User)
-    def save_user_profile(sender, instance, **kwargs):
-        instance.music_user_profile.save()
+    def create_playlist(self):
+        songs_with_genre = Song.objects.filter(genre=self.genre)
+        playlist_title = f"{self.genre} Radio Playlist"
+        playlist, created = Playlist.objects.get_or_create(title=playlist_title, genre=self.genre)
+        playlist.songs.add(*songs_with_genre)
+        playlist.save()
 
 
-class UserLibrary(models.Model):
-    user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='music_user_library')
-    saved_songs = models.ManyToManyField('Song', related_name='music_saved_in_libraries')
-    saved_albums = models.ManyToManyField('Album', related_name='music_saved_in_libraries')
-    favorite_artists = models.ManyToManyField('Artist', related_name='music_favorited_in_libraries')
-    uploaded_songs = models.ManyToManyField('Song', related_name='music_uploaded_songs', blank=True)
-    created_playlists = models.ManyToManyField('Playlist', related_name='music_created_in_libraries', blank=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user_profile'], name='unique_user_library')
-        ]
-
-    def __str__(self):
-        return f"Library of {self.user_profile.user.username}"
-
-    def add_to_library(self, content, content_type):
-        """
-        Add content to the user's library.
-
-        Parameters:
-        - content: The content instance to be added (e.g., Song, Album, Artist, Playlist, etc.).
-        - content_type: A string indicating the type of content ('song', 'album', 'artist', 'playlist', etc.).
-        """
-        if content_type == 'song':
-            self.saved_songs.add(content)
-        elif content_type == 'album':
-            self.saved_albums.add(content)
-        elif content_type == 'artist':
-            self.favorite_artists.add(content)
-        elif content_type == 'playlist':
-            self.created_playlists.add(content)
-        else:
-            # Handle other content types as needed
-            pass
-
-    def remove_from_library(self, content, content_type):
-        """
-        Remove content from the user's library.
-
-        Parameters:
-        - content: The content instance to be removed.
-        - content_type: A string indicating the type of content ('song', 'album', 'artist', 'playlist', etc.).
-        """
-        if content_type == 'song':
-            self.saved_songs.remove(content)
-        elif content_type == 'album':
-            self.saved_albums.remove(content)
-        elif content_type == 'artist':
-            self.favorite_artists.remove(content)
-        elif content_type == 'playlist':
-            self.created_playlists.remove(content)
-        else:
-            # Handle other content types as needed
-            pass
+    @receiver(post_save, sender=Genre)
+    def create_or_update_genreradio(sender, instance, **kwargs):
+        for genre in Genre.objects.all():
+            genreradio, created = GenreRadio.objects.get_or_create(genre=genre)
+            genreradio.create_playlist()
 
 
 class AudioFile(models.Model):
@@ -167,6 +150,21 @@ class AudioFile(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class APIMusic(models.Model):
+    api_url = models.URLField(max_length=200)
+    access_token = models.CharField(max_length=200, blank=True)
+
+    def fetch_data(api_url, headers=None):
+        try:
+            response = requests.get(api_url, headers=headers)
+            response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
+            data = response.json()
+            return data
+        except requests.exceptions.RequestException as e:
+            print(f"Failed to fetch data from API: {e}")
+            return None
 
 
 class MusicAPI:

@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import RecommendedSongs, Like
 
-# Register your models here.
+admin.site.register(RecommendedSongs)
+admin.site.register(Like)
+

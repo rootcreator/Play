@@ -43,7 +43,6 @@ LOGGING = {
     },
 }
 
-
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -51,17 +50,29 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_ffmpeg',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
+
+    
+    'jam',
     'music',
     'sendfile',
     'users',
-    'django_ffmpeg',
     'radio',
+    'scrapper',
 
 
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBACKEND',
 ]
 
 # Backend for serving files
@@ -69,6 +80,7 @@ SENDFILE_BACKEND = 'sendfile.backends.nginx'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,7 +107,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 WSGI_APPLICATION = 'play.wsgi.application'
 
@@ -242,4 +253,11 @@ redis_conn = get_redis_connection()
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = 'profile.html'
+# LOGIN_URL = 'profile.html'
+
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+CSRF_COOKIE_SECURE = False  # Ensure this is False in development
+CSRF_COOKIE_HTTPONLY = False  # Ensure this is False in development

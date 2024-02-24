@@ -1,14 +1,11 @@
 from rest_framework.routers import DefaultRouter
-from .views import UserProfileViewSet, UserProfileViewViewSet, UserLibraryViewSet, ListeningHistoryViewSet
+from .views import ProfileViewSet, LibraryViewSet, ListeningHistoryViewSet, SettingsViewSet
 
 router = DefaultRouter()
-
-router.register(r'userprofiles', UserProfileViewSet, basename='userprofile')
-router.register(r'userprofileviews', UserProfileViewViewSet, basename='userprofileview')
-router.register(r'userlibraries', UserLibraryViewSet, basename='userlibrary')
-router.register(r'listeninghistories', ListeningHistoryViewSet, basename='listeninghistory')
-
-router.register(r'user-profile', UserProfileViewSet, basename='user-profile')
+router.register(r'profiles', ProfileViewSet, basename='profile')
+router.register(r'libraries', LibraryViewSet, basename='library')
+router.register(r'listening_history', ListeningHistoryViewSet, basename='history')
+router.register(r'settings', SettingsViewSet)
 
 
 

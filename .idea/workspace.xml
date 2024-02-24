@@ -13,8 +13,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -46,11 +46,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\USER\Desktop\Django\play\scrapper1" />
+      <recent name="C:\Users\USER\Desktop\Django\play" />
+      <recent name="C:\Users\USER\Desktop\Django\play\music\api" />
       <recent name="C:\Users\USER\Desktop\Django\play\music\templates" />
       <recent name="C:\Users\USER\Desktop\Django\play\music" />
-      <recent name="C:\Users\USER\Desktop\Django\play\music\templates\music" />
-      <recent name="C:\Users\USER\Desktop\Django\play\music\templates\static" />
-      <recent name="C:\Users\USER\Desktop\Django\play\music\templates\js" />
     </key>
   </component>
   <component name="RunManager">

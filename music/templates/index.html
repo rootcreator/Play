@@ -14,38 +14,38 @@
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/search">Search</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/radio">Radio Stations</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
-                </li>
-            </ul>
-            <!-- Search form
-            <form class="d-flex">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" id="searchInput">
-                <button class="btn btn-outline-success" type="button" id="searchButton">Search</button>
-            </form> -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://127.0.0.1:8000/search">Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://127.0.0.1:8000/radio">Radio Stations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <main class="container mt-3">
+     <main class="container mt-3">
         <section id="user-details">
             <h2>User Details</h2>
             <p>Username: {{ user_profile.user.username }}</p>
@@ -141,6 +141,7 @@
         </section>
     </main>
 
+
     <footer class="text-center mt-3">
         <!-- Music player widget -->
         <div class="music-player">
@@ -155,72 +156,6 @@
 
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-    <!-- Custom JavaScript -->
-    <script>
-        // Save function using AJAX
-        $('.btn-save').on('click', function () {
-            const type = $(this).data('type');
-            const id = $(this).data('id');
-            const url = `/users/save/${type}/${id}/`;
-
-            $.ajax({
-                type: 'POST',
-                url: url,
-                data: {
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function (data) {
-                    // Handle success (e.g., update UI to show item is saved)
-                    console.log('Item saved successfully:', data);
-                },
-                error: function (error) {
-                    // Handle error
-                    console.error('Error saving item:', error);
-                }
-            });
-        });
-
-        // Play function using AJAX
-        $('.btn-primary.btn-play').on('click', function () {
-            const audioPlayer = document.getElementById('music-player');
-            const audioSource = $(this).data('src');
-
-            // Update audio source and play
-            audioPlayer.src = audioSource;
-            audioPlayer.play();
-        });
-
-        // Play selected song when clicked
-        $('.col').on('click', function () {
-            const audioPlayer = document.getElementById('music-player');
-            audioPlayer.src = $(this).find('.btn-play').data('src');
-            audioPlayer.play();
-        });
-
-         // Function to perform search
-        function performSearch(query) {
-            $.ajax({
-                type: 'GET',
-                url: `/search/?query=${query}`,
-                success: function (data) {
-                    // Update sections with search results
-                    // Example: $('#songs').html(data.songs);
-                },
-                error: function (error) {
-                    // Handle error
-                    console.error('Error performing search:', error);
-                }
-            });
-        }
-
-        // Event listener for search form submission
-        $('form').on('submit', function (event) {
-            event.preventDefault(); // Prevent default form submission
-            const query = $(this).find('input[type="search"]').val(); // Get search query
-            performSearch(query); // Perform search
-        });
-    </script>
 
     <!-- Bootstrap JS CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>

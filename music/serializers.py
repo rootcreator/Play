@@ -1,7 +1,6 @@
 from rest_framework import serializers
-
-from users.models import UserProfile
-from .models import Genre, Artist, Album, Song, Playlist, UserProfile, UserLibrary, AudioFile
+from users.models import Profile
+from .models import Genre, Artist, Album, Song, Playlist, AudioFile, APIMusic
 from django.contrib.auth.models import User
 
 
@@ -35,15 +34,9 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
-        fields = '__all__'
-
-
-class UserLibrarySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserLibrary
+        model = Profile
         fields = '__all__'
 
 
@@ -54,7 +47,7 @@ class AudioFileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    music_user_profile = UserProfileSerializer()
+    music_user_profile = ProfileSerializer()
 
     class Meta:
         model = User
@@ -74,7 +67,9 @@ class SearchResultsSerializer(serializers.Serializer):
     spotify_results = SpotifySerializer()
 
 
-class UserProfileViewSerializer(serializers.ModelSerializer):
+
+
+class APIMusicViewSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
+        model = APIMusic
         fields = '__all__'
