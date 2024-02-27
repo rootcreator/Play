@@ -1,22 +1,16 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import ProfileViewSet, LibraryViewSet, ListeningHistoryViewSet, SettingsViewSet
+from django.urls import path
+from .views import ProfileAPIView, LibraryAPIView, LikeAPIView, ListeningHistoryAPIView, SettingsAPIView, \
+    RecentlyPlayedAPIView, LoginAPIView
 
-# Create a router and register our viewsets with it
-router = DefaultRouter()
-router.register(r'profiles', ProfileViewSet, basename='profile')
-router.register(r'libraries', LibraryViewSet)
-router.register(r'listening-history', ListeningHistoryViewSet)
-router.register(r'settings', SettingsViewSet)
-
-# Define the urlpatterns
 urlpatterns = [
-    # Include the router URLs
-    path('', include(router.urls)),
-    # Include the login URLs for the browsable API
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework_auth')),
-    # Add a register endpoint for profiles
-    path('profiles/register/', ProfileViewSet.as_view({'post': 'register'}), name='profile_register'),
-    # Add a login endpoint for profiles
-    path('profiles/login/', ProfileViewSet.as_view({'post': 'login'}), name='profile_login'),
+    path('all-profiles/', ProfileAPIView.as_view(), name='all-profiles'),
+    path('all-libraries/', LibraryAPIView.as_view(), name='all-libraries'),
+    path('profile/', ProfileAPIView.as_view(), name='profile'),
+    path('login/', LoginAPIView.as_view(), name='login'),
+    path('library/', LibraryAPIView.as_view(), name='library'),
+    path('likes/', LikeAPIView.as_view(), name='likes'),
+    path('listening-histories/', ListeningHistoryAPIView.as_view(), name='listening_histories'),
+    path('settings/', SettingsAPIView.as_view(), name='settings'),
+    path('recently-played/', RecentlyPlayedAPIView.as_view(), name='recently-played'),
+
 ]

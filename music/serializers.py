@@ -1,7 +1,5 @@
 from rest_framework import serializers
-from users.models import Profile
-from .models import Genre, Artist, Album, Song, Playlist, AudioFile, APIMusic
-from django.contrib.auth.models import User
+from .models import Genre, Artist, Song, Album, Playlist, GenreRadio, ArtistRadio, Mood
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -16,15 +14,21 @@ class ArtistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Song
+        fields = '__all__'
+
+
 class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
         fields = '__all__'
 
 
-class SongSerializer(serializers.ModelSerializer):
+class MoodSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Song
+        model = Mood
         fields = '__all__'
 
 
@@ -34,42 +38,13 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class GenreRadioSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Profile
+        model = GenreRadio
         fields = '__all__'
 
 
-class AudioFileSerializer(serializers.ModelSerializer):
+class ArtistRadioSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AudioFile
-        fields = '__all__'
-
-
-class UserSerializer(serializers.ModelSerializer):
-    music_user_profile = ProfileSerializer()
-
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'music_user_profile']
-
-
-# Serializer for Spotify results
-class SpotifySerializer(serializers.Serializer):
-    spotify_songs = serializers.ListField(child=serializers.JSONField())
-    spotify_albums = serializers.ListField(child=serializers.JSONField())
-    spotify_artists = serializers.ListField(child=serializers.JSONField())
-
-
-# Serializer for combining local and Spotify results
-class SearchResultsSerializer(serializers.Serializer):
-    local_results = serializers.DictField()
-    spotify_results = SpotifySerializer()
-
-
-
-
-class APIMusicViewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = APIMusic
+        model = ArtistRadio
         fields = '__all__'

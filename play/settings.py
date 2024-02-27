@@ -45,8 +45,10 @@ LOGGING = {
 
 ALLOWED_HOSTS = []
 
-# Application definition
 
+SITE_ID = 1  # Assuming the ID of the default site is 1
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+
     
     'jam',
     'music',
@@ -69,10 +72,6 @@ INSTALLED_APPS = [
     'scrapper',
 
 
-]
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBACKEND',
 ]
 
 # Backend for serving files
@@ -140,14 +139,22 @@ LOGIN_REDIRECT_URL = '/'  # Replace '/' with your desired URL
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'play.01',
+#        'USER': 'postgres',
+#        'PASSWORD': 'Root101.com',
+#        'HOST': 'localhost',  # Or your PostgreSQL server IP
+#        'PORT': '5432',  # Default PostgreSQL port
+#    }
+#}
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'play.01',
-        'USER': 'postgres',
-        'PASSWORD': 'Root101.com',
-        'HOST': 'localhost',  # Or your PostgreSQL server IP
-        'PORT': '5432',  # Default PostgreSQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -257,6 +264,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = [
+    'http://*',
+    'https://*',
+]
+
 
 
 CSRF_COOKIE_SECURE = False  # Ensure this is False in development

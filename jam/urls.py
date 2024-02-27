@@ -1,29 +1,16 @@
 from django.urls import path
-from . import views
+from .views import TrendsAPIView, FavouritesAPIView, RecommendedAPIView, FeedsAPIView
+from .views import RecommendationView, SongRecommendationView, PlaylistRecommendationView, AlbumRecommendationView
 
 urlpatterns = [
-    # URLs for SimilarPlaylists
-    path('similarplaylists/', views.SimilarPlaylistsList.as_view(), name='similarplaylists-list'),
-    path('similarplaylists/<int:pk>/', views.SimilarPlaylistsDetail.as_view(), name='similarplaylists-detail'),
-
-    # URLs for SimilarReleases
-    path('similarreleases/', views.SimilarReleasesList.as_view(), name='similarreleases-list'),
-    path('similarreleases/<int:pk>/', views.SimilarReleasesDetail.as_view(), name='similarreleases-detail'),
-
-    # URL for Trends
-    path('trends/', views.TrendsList.as_view(), name='trends-list'),
-
-    # URLs for Favourites
-    path('favourites/', views.FavouritesList.as_view(), name='favourites-list'),
-    path('favourites/<int:pk>/', views.FavouritesDetail.as_view(), name='favourites-detail'),
-
-    # URLs for RecommendedSongs
-    path('recommendedsongs/', views.RecommendedSongsList.as_view(), name='recommendedsongs-list'),
-    path('recommendedsongs/<int:pk>/', views.RecommendedSongsDetail.as_view(), name='recommendedsongs-detail'),
-
-    path('feeds/', views.FeedsList.as_view(), name='feeds-list'),
-    path('feeds/<int:pk>/', views.FeedsDetail.as_view(), name='feeds-detail'),
-
-    path('likes/', views.LikeListCreate.as_view(), name='like-list-create'),
-    path('likes/<int:pk>/', views.LikeDetail.as_view(), name='like-detail'),
+    path('trends/', TrendsAPIView.as_view(), name='trends-list-create'),
+    path('favourites/', FavouritesAPIView.as_view(), name='favourites-list-create'),
+    path('recommended/', RecommendedAPIView.as_view(), name='recommended-list-create'),
+    path('feeds/', FeedsAPIView.as_view(), name='feeds-list-create'),
+    path('recommendations/<int:user_id>/', RecommendationView.as_view(), name='recommendations'),
+    path('song-recommendations/<int:user_id>/', SongRecommendationView.as_view(), name='song-recommendations'),
+    path('playlist-recommendations/<int:user_id>/', PlaylistRecommendationView.as_view(), name='playlist-recommendations'),
+    path('album-recommendations/<int:user_id>/', AlbumRecommendationView.as_view(), name='album-recommendations'),
+    path('trending-recommendation/', TrendsAPIView.as_view(), name='trends-recommendation-list-create'),
 ]
+

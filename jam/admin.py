@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import RecommendedSongs, Like
+from .models import Like
 
-admin.site.register(RecommendedSongs)
+
 admin.site.register(Like)
 

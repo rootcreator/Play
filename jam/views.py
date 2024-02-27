@@ -1,109 +1,29 @@
-from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
-from .models import SimilarPlaylists, SimilarReleases, Trends, Favourites, RecommendedSongs, Feeds, Like
-from .serializers import SimilarPlaylistsSerializer, SimilarReleasesSerializer, TrendsSerializer, FavouritesSerializer, \
-    RecommendedSongsSerializer, FeedsSerializer, LikeSerializer
+from rest_framework import status
+from jam.serializers import Recommended, SimilarReleasesSerializer, TrendsSerializer, FavouritesSerializer, \
+    RecommendedSerializer, FeedsSerializer
+from users.models import Profile
+from .models import RecommendedPlaylists, SimilarReleases, Trends, Favourites, Recommended, Feeds
+from .services.billboardrecommendation import get_trendrecommendations
+from .services.recommendation_utils import recommend_songs, get_recommendations
 
 
-class SimilarPlaylistsList(APIView):
+class TrendsAPIView(APIView):
     def get(self, request):
-        playlists = SimilarPlaylists.objects.all()
-        serializer = SimilarPlaylistsSerializer(playlists, many=True)
+        trends = Trends.objects.all()
+        serializer = TrendsSerializer(trends, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = SimilarPlaylistsSerializer(data=request.data)
+        serializer = TrendsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SimilarPlaylistsDetail(APIView):
-    def get_object(self, pk):
-        try:
-            return SimilarPlaylists.objects.get(pk=pk)
-        except SimilarPlaylists.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        playlist = self.get_object(pk)
-        serializer = SimilarPlaylistsSerializer(playlist)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        playlist = self.get_object(pk)
-        serializer = SimilarPlaylistsSerializer(playlist, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        playlist = self.get_object(pk)
-        playlist.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# SimilarReleases Views
-class SimilarReleasesList(APIView):
-    def get(self, request):
-        releases = SimilarReleases.objects.all()
-        serializer = SimilarReleasesSerializer(releases, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = SimilarReleasesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SimilarReleasesDetail(APIView):
-    def get_object(self, pk):
-        try:
-            return SimilarReleases.objects.get(pk=pk)
-        except SimilarReleases.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        release = self.get_object(pk)
-        serializer = SimilarReleasesSerializer(release)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        release = self.get_object(pk)
-        serializer = SimilarReleasesSerializer(release, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        release = self.get_object(pk)
-        release.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# Trends Views
-class TrendsList(APIView):
-    def get(self, request):
-        popular_songs = Trends.get_popular_songs()
-        popular_albums = Trends.get_popular_albums()
-        popular_artists = Trends.get_popular_artists()
-        serializer = TrendsSerializer({
-            'popular_songs': popular_songs,
-            'popular_albums': popular_albums,
-            'popular_artists': popular_artists
-        })
-        return Response(serializer.data)
-
-
-# Favourites Views
-class FavouritesList(APIView):
+class FavouritesAPIView(APIView):
     def get(self, request):
         favourites = Favourites.objects.all()
         serializer = FavouritesSerializer(favourites, many=True)
@@ -117,75 +37,21 @@ class FavouritesList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FavouritesDetail(APIView):
-    def get_object(self, pk):
-        try:
-            return Favourites.objects.get(pk=pk)
-        except Favourites.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        favourite = self.get_object(pk)
-        serializer = FavouritesSerializer(favourite)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        favourite = self.get_object(pk)
-        serializer = FavouritesSerializer(favourite, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        favourite = self.get_object(pk)
-        favourite.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# RecommendedSongs Views
-class RecommendedSongsList(APIView):
+class RecommendedAPIView(APIView):
     def get(self, request):
-        recommended_songs = RecommendedSongs.objects.all()
-        serializer = RecommendedSongsSerializer(recommended_songs, many=True)
+        recommended = Recommended.objects.all()
+        serializer = RecommendedSerializer(recommended, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = RecommendedSongsSerializer(data=request.data)
+        serializer = RecommendedSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RecommendedSongsDetail(APIView):
-    def get_object(self, pk):
-        try:
-            return RecommendedSongs.objects.get(pk=pk)
-        except RecommendedSongs.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk):
-        recommended_song = self.get_object(pk)
-        serializer = RecommendedSongsSerializer(recommended_song)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        recommended_song = self.get_object(pk)
-        serializer = RecommendedSongsSerializer(recommended_song, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        recommended_song = self.get_object(pk)
-        recommended_song.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# Feeds Views
-class FeedsList(APIView):
+class FeedsAPIView(APIView):
     def get(self, request):
         feeds = Feeds.objects.all()
         serializer = FeedsSerializer(feeds, many=True)
@@ -199,38 +65,99 @@ class FeedsList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FeedsDetail(APIView):
-    def get_object(self, pk):
+# Recommendation
+class RecommendationView(APIView):
+    def get(self, request, user_id):
         try:
-            return Feeds.objects.get(pk=pk)
-        except Feeds.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def get(self, request, pk):
-        feed = self.get_object(pk)
-        serializer = FeedsSerializer(feed)
-        return Response(serializer.data)
-
-    def put(self, request, pk):
-        feed = self.get_object(pk)
-        serializer = FeedsSerializer(feed, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        feed = self.get_object(pk)
-        feed.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            user_profile = Profile.objects.get(id=user_id)
+            recommendations = get_combined_recommendations(user_profile)
+            return Response(recommendations, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#Likes
-class LikeListCreate(generics.ListCreateAPIView):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
+def get_combined_recommendations(user_profile):
+    try:
+        # Retrieve recommendations for songs and albums separately
+        recommended_songs = get_song_recommendations(user_profile)
+        recommended_albums = get_album_recommendations(user_profile)
+
+        # Combine the recommendations
+        combined_recommendations = {
+            'recommended_songs': recommended_songs,
+            'recommended_albums': recommended_albums
+        }
+
+        return combined_recommendations
+    except Exception as e:
+        raise e
 
 
-class LikeDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
+def get_song_recommendations(user_profile):
+    # Your logic to retrieve recommended songs
+    recommended_songs = []
+    # Add logic to fetch recommended songs for the user_profile
+    return recommended_songs
+
+
+def get_album_recommendations(user_profile):
+    # Your logic to retrieve recommended albums
+    recommended_albums = []
+    # Add logic to fetch recommended albums for the user_profile
+    return recommended_albums
+
+
+class SongRecommendationView(APIView):
+    def get(self, request, user_id):
+        try:
+            user_profile = Profile.objects.get(id=user_id)
+            recommended_songs = recommend_songs(user_profile)
+            return Response({'recommended_songs': recommended_songs}, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PlaylistRecommendationView(APIView):
+    def get(self, request, user_id):
+        try:
+            user_profile = Profile.objects.get(id=user_id)
+            # Add logic to retrieve recommended playlists for the user
+            recommended_playlists = []  # Placeholder for recommended playlists
+            return Response({'recommended_playlists': recommended_playlists}, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AlbumRecommendationView(APIView):
+    def get(self, request, user_id):
+        try:
+            user_profile = Profile.objects.get(id=user_id)
+            # Add logic to retrieve recommended albums for the user
+            similar_releases = SimilarReleases.objects.all()  # Example logic to retrieve similar releases
+            recommended_albums = [album.name for album in
+                                  similar_releases.albums.all()]  # Placeholder for recommended albums
+            return Response({'recommended_albums': recommended_albums}, status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# Trends
+class TrendingRecommendationView(APIView):
+    def get(self, request, user_id):
+        try:
+            user_profile = Profile.objects.get(id=user_id)
+            recommendations, integration_status = get_trendrecommendations(user_profile.user)
+            return Response({'recommendations': recommendations, 'integration_status': integration_status},
+                            status=status.HTTP_200_OK)
+        except Profile.DoesNotExist:
+            return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

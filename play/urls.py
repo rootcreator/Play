@@ -31,7 +31,6 @@ urlpatterns = [
     path('', include('users.urls')),
     #path('', RedirectView.as_view(url='/music/')),
     path('radio/', include('radio.urls')),
-    path('player/', include('music_player.urls')),
     path('scrape/', include('scrapper.urls')),
 
 

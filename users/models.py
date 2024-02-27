@@ -13,9 +13,6 @@ class Profile(models.Model):
     view_count = models.PositiveIntegerField(default=0)
     last_viewed = models.DateTimeField(auto_now=True)
 
-
-    # Add other fields and methods from your Profile model here, such as view_count, last_viewed, etc.
-
     def __str__(self):
         return self.user.username
 
@@ -26,7 +23,7 @@ class Profile(models.Model):
 
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
-        instance.userprofile.save()
+        instance.profile.save()
 
 
 class Library(models.Model):
@@ -58,6 +55,7 @@ class ListeningHistory(models.Model):
     user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     user_library = models.ForeignKey(Library, on_delete=models.CASCADE)
     song = models.ForeignKey('music.Song', on_delete=models.CASCADE)
+    album = models.ForeignKey('music.album', on_delete=models.CASCADE)
     listened_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

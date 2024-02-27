@@ -3,6 +3,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from random import sample
+
 
 class Genre(models.Model):
     GENRE_CHOICES = [
@@ -52,6 +54,25 @@ class Genre(models.Model):
         return self.genre
 
 
+class Mood(models.Model):
+    MOOD_CHOICES = [
+        ('Happy', 'Happy'),
+        ('Dance', 'Dance'),
+        ('Party', 'Party'),
+        ('Workout', 'Workout'),
+        ('Sad', 'Sad'),
+        ('Romance', 'Romance'),
+        ('Drive', 'Drive'),
+        ('Focus', 'Focus'),
+        ('Religious', 'Religious'),
+    ]
+
+    mood = models.CharField(max_length=100, choices=MOOD_CHOICES, unique=True)
+
+    def __str__(self):
+        return self.mood
+
+
 class Artist(models.Model):
     name = models.CharField(max_length=100, unique=True)
     cover_image = models.ImageField(null=True, blank=True, upload_to='artist_covers/')
@@ -80,6 +101,8 @@ class Song(models.Model):
     feature = models.ManyToManyField('Artist', related_name='featured', blank=True)
     composer = models.CharField(max_length=100, blank=True, null=True)
     producer = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
+
 
     class Meta:
         unique_together = [['title', 'artist']]
@@ -100,8 +123,10 @@ class Album(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
+    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
     rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
     songs = models.ManyToManyField(Song, related_name='albums', blank=True)
+
 
     class Meta:
         unique_together = [['title', 'artist', 'cover_image']]
@@ -115,6 +140,9 @@ class Playlist(models.Model):
     cover_image = models.ImageField(upload_to='playlist_covers/')
     songs = models.ManyToManyField(Song)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+
 
     class Meta:
         unique_together = [['title']]
@@ -123,19 +151,43 @@ class Playlist(models.Model):
         return self.title
 
 
+
+
 class GenreRadio(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
+    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f"{self.genre} Radio"
 
     def create_playlist(self):
-        songs_with_genre = Song.objects.filter(genre=self.genre)
-        playlist_title = f"{self.genre} Radio Playlist"
-        playlist, created = Playlist.objects.get_or_create(title=playlist_title, genre=self.genre)
-        playlist.songs.add(*songs_with_genre)
-        playlist.save()
+        # Get mood data for the genre
+        mood_data = Mood.objects.filter(genre=self.genre)
 
+        # Get trend data for the genre
+        #trend_data = Trends.objects.filter(genre=self.genre)
+
+        # Dummy logic to select songs based on mood and trends
+        selected_songs = Song.objects.filter(genre=self.genre, mood__in=mood_data)
+
+        # Define different themes or variations for playlists
+        themes = ['Party', 'Relaxing', 'Workout', 'Chill', 'Study']
+
+        for theme in themes:
+            # Shuffle the selected songs to mix them up
+            shuffled_songs = sample(list(selected_songs), min(len(selected_songs), 24))  # Select up to 24 songs
+
+            # Create playlist title based on theme, mood, and trends
+            playlist_title = f"{self.genre} Radio Playlist - {theme} - Mood: {mood_data}"
+
+            # Check if playlist with the same title already exists
+            existing_playlist = Playlist.objects.filter(title=playlist_title).exists()
+
+            if not existing_playlist:
+                # Create the playlist only if it doesn't already exist
+                playlist = Playlist.objects.create(title=playlist_title, genre=self.genre)
+                playlist.songs.add(*shuffled_songs)
 
     @receiver(post_save, sender=Genre)
     def create_or_update_genreradio(sender, instance, **kwargs):
@@ -144,9 +196,40 @@ class GenreRadio(models.Model):
             genreradio.create_playlist()
 
 
+class ArtistRadio(models.Model):
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
+    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.artist} Radio"
+
+    def create_playlist(self):
+        # Get songs by the associated artist
+        songs_by_artist = Song.objects.filter(artist=self.artist)
+
+        # Define different themes or variations for playlists
+        themes = ['Top Hits', 'Old Favorites', 'Acoustic Sessions', 'Collaborations' 'Live Performances']
+
+        for theme in themes:
+            # Shuffle the songs to mix them up
+            shuffled_songs = sample(list(songs_by_artist), min(len(songs_by_artist), 10))  # Select up to 10 songs
+
+            # Create playlist title based on theme and artist
+            playlist_title = f"{self.artist} Radio Playlist - {theme}"
+
+            # Check if playlist with the same title already exists
+            existing_playlist = Playlist.objects.filter(title=playlist_title).exists()
+
+            if not existing_playlist:
+                # Create the playlist only if it doesn't already exist
+                playlist = Playlist.objects.create(title=playlist_title, artist=self.artist)
+                playlist.songs.add(*shuffled_songs)
+
+
 class AudioFile(models.Model):
     title = models.CharField(max_length=100)
     audio_file = models.FileField(upload_to='songs/')
+
 
     def __str__(self):
         return self.title
@@ -155,6 +238,7 @@ class AudioFile(models.Model):
 class APIMusic(models.Model):
     api_url = models.URLField(max_length=200)
     access_token = models.CharField(max_length=200, blank=True)
+    
 
     def fetch_data(api_url, headers=None):
         try:

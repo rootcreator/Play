@@ -1,122 +1,84 @@
-from django.contrib.auth.models import User
-from rest_framework import viewsets, status
+from rest_framework import generics, status
+from django.http import JsonResponse
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import action
-from .models import Genre, Artist, Album, Song, Playlist, AudioFile, APIMusic
-from .search import search
-from .serializers import GenreSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, AudioFileSerializer, UserSerializer, APIMusicViewSerializer
+from django.db.models import Q
+from .models import Genre, Artist, Song, Album, Playlist, GenreRadio, Mood, ArtistRadio
+from .serializers import GenreSerializer, ArtistSerializer, SongSerializer, AlbumSerializer, PlaylistSerializer, \
+    GenreRadioSerializer, ArtistRadioSerializer, MoodSerializer
+from django.core import serializers
 
 
-class GenreViewSet(viewsets.ModelViewSet):
+class GenreListCreate(generics.ListCreateAPIView):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        genre = self.get_object()
-        serializer = self.get_serializer(genre)
-        return Response(serializer.data)
+
+class MoodListCreate(generics.ListCreateAPIView):
+    queryset = Mood.objects.all()
+    serializer_class = MoodSerializer
 
 
-class ArtistViewSet(viewsets.ModelViewSet):
+class ArtistListCreate(generics.ListCreateAPIView):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
 
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        artist = self.get_object()
-        serializer = self.get_serializer(artist)
-        return Response(serializer.data)
 
-
-class AlbumViewSet(viewsets.ModelViewSet):
-    queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
-
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        album = self.get_object()
-        serializer = self.get_serializer(album)
-        return Response(serializer.data)
-
-
-class SongViewSet(viewsets.ModelViewSet):
+class SongListCreate(generics.ListCreateAPIView):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        song = self.get_object()
-        serializer = self.get_serializer(song)
-        return Response(serializer.data)
+
+class AlbumListCreate(generics.ListCreateAPIView):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
 
 
-class PlaylistViewSet(viewsets.ModelViewSet):
+class PlaylistListCreate(generics.ListCreateAPIView):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
 
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        playlist = self.get_object()
-        serializer = self.get_serializer(playlist)
-        return Response(serializer.data)
+
+class GenreRadioListCreate(generics.ListCreateAPIView):
+    queryset = GenreRadio.objects.all()
+    serializer_class = GenreRadioSerializer
 
 
-
-class AudioFileViewSet(viewsets.ModelViewSet):
-    queryset = AudioFile.objects.all()
-    serializer_class = AudioFileSerializer
-
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        audio_file = self.get_object()
-        serializer = self.get_serializer(audio_file)
-        return Response(serializer.data)
+class ArtistRadioListCreate(generics.ListCreateAPIView):
+    queryset = ArtistRadio.objects.all()
+    serializer_class = ArtistRadioSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+def combined_view(request):
+    # Fetching both songs and albums
+    songs = Song.objects.all()
+    albums = Album.objects.all()
 
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        user = self.get_object()
-        serializer = self.get_serializer(user)
-        return Response(serializer.data)
+    # Combining songs and albums
+    combined_data = list(songs) + list(albums)
 
+    # Sorting the combined data by the latest creation date
+    sorted_data = sorted(combined_data, key=lambda x: x.created_at, reverse=True)
 
-class APIMusicViewSet(viewsets.ModelViewSet):
-    queryset = APIMusic.objects.all()
-    serializer_class = APIMusicViewSerializer
+    # Serialize the sorted data
+    serialized_data = serializers.serialize('json', sorted_data)
 
-    @action(detail=True, methods=['GET'])
-    def details(self, request, pk=None):
-        api_music = self.get_object()
-        serializer = self.get_serializer(api_music)
-        return Response(serializer.data)
+    # Return the serialized data as JSON response
+    return JsonResponse(serialized_data, safe=False)
 
 
-# Search
-class SearchViewSet(viewsets.ViewSet):
-    def search(self, request):
-        query = request.query_params.get('q', '')
-        if query:
-            search_results = search(query)
+class SearchAPIView(APIView):
+    def get(self, request):
+        query = request.query_params.get('query', '')
+        local_results = self.search(query)
+        return Response(local_results)
 
-            # Serialize search results
-            song_serializer = SongSerializer(search_results['songs'], many=True)
-            album_serializer = AlbumSerializer(search_results['albums'], many=True)
-            genre_serializer = GenreSerializer(search_results['genres'], many=True)
-            playlist_serializer = PlaylistSerializer(search_results['playlists'], many=True)
-            artist_serializer = ArtistSerializer(search_results['artists'], many=True)
-
-            # Return serialized search results
-            return Response({
-                'songs': song_serializer.data,
-                'albums': album_serializer.data,
-                'genres': genre_serializer.data,
-                'playlists': playlist_serializer.data,
-                'artists': artist_serializer.data,
-            })
-        else:
-            return Response("No query provided", status=status.HTTP_400_BAD_REQUEST)
+    def search(self, query):
+        local_results = {
+            'songs': SongSerializer(Song.objects.filter(title__icontains=query), many=True).data,
+            'albums': AlbumSerializer(Album.objects.filter(title__icontains=query), many=True).data,
+            'artists': ArtistSerializer(Artist.objects.filter(name__icontains=query), many=True).data,
+            'genres': GenreSerializer(Genre.objects.filter(name__icontains=query), many=True).data,
+            'playlists': PlaylistSerializer(Playlist.objects.filter(name__icontains=query), many=True).data,
+        }
+        return local_results

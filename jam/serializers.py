@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from .models import SimilarPlaylists, SimilarReleases, Favourites, RecommendedSongs, Feeds, Like
+from .models import RecommendedPlaylists, SimilarReleases, Trends, Favourites, Recommended, Feeds
 
 
-class SimilarPlaylistsSerializer(serializers.ModelSerializer):
+class RecommendedPlaylistsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SimilarPlaylists
+        model = RecommendedPlaylists
         fields = '__all__'
 
 
@@ -14,10 +14,10 @@ class SimilarReleasesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TrendsSerializer(serializers.Serializer):
-    popular_songs = serializers.ListField(child=serializers.CharField())
-    popular_albums = serializers.ListField(child=serializers.CharField())
-    popular_artists = serializers.ListField(child=serializers.CharField())
+class TrendsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trends
+        fields = '__all__'
 
 
 class FavouritesSerializer(serializers.ModelSerializer):
@@ -26,19 +26,13 @@ class FavouritesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RecommendedSongsSerializer(serializers.ModelSerializer):
+class RecommendedSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RecommendedSongs
+        model = Recommended
         fields = '__all__'
 
 
 class FeedsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feeds
-        fields = '__all__'
-
-
-class LikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Like
         fields = '__all__'
