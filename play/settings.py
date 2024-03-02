@@ -70,6 +70,9 @@ INSTALLED_APPS = [
     'users',
     'radio',
     'scrapper',
+    'catalog',
+
+
 
 
 ]
@@ -135,20 +138,40 @@ REST_FRAMEWORK = {
 # Redirect to a particular URL after login (optional)
 LOGIN_REDIRECT_URL = '/'  # Replace '/' with your desired URL
 
+
+
+'''DATABASE_ROUTERS = ['routers.routers.AppRouter']'''
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+'''DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'play',
+        'USER': 'postgres',
+        'PASSWORD': 'Root101.com',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
 
+}'''
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'play.01',
-#        'USER': 'postgres',
-#        'PASSWORD': 'Root101.com',
-#        'HOST': 'localhost',  # Or your PostgreSQL server IP
-#        'PORT': '5432',  # Default PostgreSQL port
-#    }
-#}
+'''
+ 'scrapper': {
+     'ENGINE': 'django.db.backends.postgresql',
+     'NAME': 'play.scrapper',
+     'USER': 'postgres',
+     'PASSWORD': 'Root101.com',
+     'HOST': 'localhost',
+     'PORT': '5432',
+ },
+ 'catalog': {
+     'ENGINE': 'django.db.backends.postgresql',
+     'NAME': 'play.catalog',
+     'USER': 'postgres',
+     'PASSWORD': 'Root101.com',
+     'HOST': 'localhost',
+     'PORT': '5432',
+ },'''
 
 
 DATABASES = {

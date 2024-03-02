@@ -1,12 +1,11 @@
-from rest_framework import generics, status
+from django.core import serializers
 from django.http import JsonResponse
-from rest_framework.views import APIView
+from rest_framework import generics
 from rest_framework.response import Response
-from django.db.models import Q
+from rest_framework.views import APIView
 from .models import Genre, Artist, Song, Album, Playlist, GenreRadio, Mood, ArtistRadio
 from .serializers import GenreSerializer, ArtistSerializer, SongSerializer, AlbumSerializer, PlaylistSerializer, \
     GenreRadioSerializer, ArtistRadioSerializer, MoodSerializer
-from django.core import serializers
 
 
 class GenreListCreate(generics.ListCreateAPIView):

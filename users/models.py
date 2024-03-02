@@ -51,6 +51,16 @@ class Like(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')
 
 
+class Favourites(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.content_object}"
+
+
 class ListeningHistory(models.Model):
     user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     user_library = models.ForeignKey(Library, on_delete=models.CASCADE)
@@ -80,3 +90,4 @@ class Settings(models.Model):
 
     def __str__(self):
         return f'Settings for {self.user.username}'
+

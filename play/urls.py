@@ -25,13 +25,14 @@ from play import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('music.urls')),
-    path('', include('jam.urls')),
+    path('music/', include('music.urls')),
+    path('jam/', include('jam.urls')),
 
-    path('', include('users.urls')),
+    path('users/', include('users.urls')),
     #path('', RedirectView.as_view(url='/music/')),
     path('radio/', include('radio.urls')),
     path('scrape/', include('scrapper.urls')),
+    path('catalog/', include('catalog.urls')),
 
 
 

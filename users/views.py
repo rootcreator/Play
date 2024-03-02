@@ -1,11 +1,14 @@
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from catalog.models import Song, Album
 from music.serializers import SongSerializer, AlbumSerializer
-from .serializers import ProfileSerializer, LibrarySerializer, LikeSerializer, ListeningHistorySerializer, \
-    SettingsSerializer, UserSerializer
-from .models import Profile, Library, Like, ListeningHistory, Settings
+from users.serializers import ProfileSerializer, LibrarySerializer, LikeSerializer, ListeningHistorySerializer, \
+    SettingsSerializer, UserSerializer, FavouritesSerializer
+from users.models import Profile, Library, Like, ListeningHistory, Settings, Favourites
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 
@@ -65,6 +68,20 @@ class LikeAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class FavouritesAPIView(APIView):
+    def get(self, request):
+        favourites = Favourites.objects.all()
+        serializer = FavouritesSerializer(favourites, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = FavouritesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ListeningHistoryAPIView(APIView):
     def get(self, request):
         histories = ListeningHistory.objects.all()
@@ -113,3 +130,11 @@ class RecentlyPlayedAPIView(APIView):
             "recently_played_songs": song_serializer.data,
             "recently_played_albums": album_serializer.data
         })
+
+
+# User Uplaods
+@login_required
+def my_uploaded_songs(request):
+    user_songs = Song.objects.filter(user=request.user)
+    user_albums = Album.objects.filter(user=request.user)
+    return render(request, 'users/useruploads.html', {'user_songs': user_songs})

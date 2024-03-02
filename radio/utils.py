@@ -12,7 +12,7 @@ def search_radio_stations(request):
         querystring = {"offset": "0", "limit": "10"}
         headers = {
             "X-RapidAPI-Key": "1ecad14232mshea32a62c1e4dc2ap181062jsn38bf6995676a",
-            "X-RapidAPI-Host": "bando-radio-api.p.rapidapi.com"
+            "X-RapidAPI-Host": "bando-radio-intergration.p.rapidapi.com"
         }
         response = requests.get(url, headers=headers, params=querystring)
         if response.status_code == 200:
@@ -32,7 +32,7 @@ def populate_radio_stations():
 
     headers = {
         "X-RapidAPI-Key": "1ecad14232mshea32a62c1e4dc2ap181062jsn38bf6995676a",
-        "X-RapidAPI-Host": "bando-radio-api.p.rapidapi.com"
+        "X-RapidAPI-Host": "bando-radio-intergration.p.rapidapi.com"
     }
 
     response = requests.get(url, headers=headers, params=querystring)

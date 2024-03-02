@@ -5,7 +5,7 @@ from django.db import models
 from django.db.models import Count
 from django.contrib.contenttypes.models import ContentType
 from music.models import Song, Album, Playlist
-from users.models import Library, ListeningHistory, Profile, Like
+from users.models import Library, ListeningHistory, Profile, Like, Favourites
 
 
 # Create your models here.
@@ -178,16 +178,6 @@ class Trends(models.Model):
             # Handle exceptions if any error occurs during trend update
             print(f"Error updating trends: {e}")
             return False  # Return False if there's an error
-
-
-class Favourites(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
-
-    def __str__(self):
-        return f"{self.user.username} liked {self.content_object}"
 
 
 class Recommended(models.Model):

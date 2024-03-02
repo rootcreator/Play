@@ -1,5 +1,4 @@
 from django.db import models
-import os
 
 
 class Music(models.Model):
@@ -13,7 +12,6 @@ class Music(models.Model):
 
     def __str__(self):
         return self.title
-
 
 
 class Site(models.Model):

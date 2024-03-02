@@ -60,16 +60,3 @@ def list_files_from_google_drive():
         for item in items:
             print(f"{item['name']} ({item['id']})")
 
-
-# Example usage
-if __name__ == "__main__":
-    # Upload to Dropbox
-    dropbox_service = CloudStorageService(storage_type='dropbox')
-    dropbox_service.upload_file('local_file_path.txt', 'filename.txt', '/destination_path')
-
-    # Upload to Google Drive
-    drive_service = CloudStorageService(storage_type='drive')
-    drive_service.upload_file('local_file_path.txt', 'filename.txt', folder_id='destination_folder_id')
-
-    # List files from Google Drive
-    list_files_from_google_drive()

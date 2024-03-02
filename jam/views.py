@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from jam.serializers import Recommended, SimilarReleasesSerializer, TrendsSerializer, FavouritesSerializer, \
+from jam.serializers import Recommended, SimilarReleasesSerializer, TrendsSerializer, \
     RecommendedSerializer, FeedsSerializer
 from users.models import Profile
 from .models import RecommendedPlaylists, SimilarReleases, Trends, Favourites, Recommended, Feeds
@@ -23,18 +23,6 @@ class TrendsAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FavouritesAPIView(APIView):
-    def get(self, request):
-        favourites = Favourites.objects.all()
-        serializer = FavouritesSerializer(favourites, many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = FavouritesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RecommendedAPIView(APIView):

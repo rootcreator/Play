@@ -2,6 +2,7 @@ import requests
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.files.base import ContentFile
 
 from random import sample
 
@@ -83,26 +84,17 @@ class Artist(models.Model):
 
 
 class Song(models.Model):
-    RATING_CHOICES = [
-        ('Good', 'Good'),
-        ('Okay', 'Okay'),
-        ('Mid', 'Mid'),
-        ('Bad', 'Bad'),
-    ]
-
     title = models.CharField(max_length=200)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     cover_image = models.ImageField(null=True, blank=True, upload_to='song_covers/')
     audio_file = models.FileField(upload_to='songs/')
     is_single = models.BooleanField(default=True)  # Indicates if it's a single or part of an album
     album = models.ForeignKey('Album', on_delete=models.CASCADE, null=True, blank=True)
-    rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
     feature = models.ManyToManyField('Artist', related_name='featured', blank=True)
     composer = models.CharField(max_length=100, blank=True, null=True)
     producer = models.CharField(max_length=100, blank=True, null=True, unique=True)
     mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
-
 
     class Meta:
         unique_together = [['title', 'artist']]
@@ -112,21 +104,13 @@ class Song(models.Model):
 
 
 class Album(models.Model):
-    RATING_CHOICES = [
-        ('Good', 'Good'),
-        ('Okay', 'Okay'),
-        ('Mid', 'Mid'),
-        ('Bad', 'Bad'),
-    ]
-
     title = models.CharField(max_length=200)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
     mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
-    rating = models.CharField(max_length=10, choices=RATING_CHOICES, default='Okay')
-    songs = models.ManyToManyField(Song, related_name='albums', blank=True)
 
+    songs = models.ManyToManyField(Song, related_name='albums', blank=True)
 
     class Meta:
         unique_together = [['title', 'artist', 'cover_image']]
@@ -143,7 +127,6 @@ class Playlist(models.Model):
     mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
 
-
     class Meta:
         unique_together = [['title']]
 
@@ -151,12 +134,9 @@ class Playlist(models.Model):
         return self.title
 
 
-
-
 class GenreRadio(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
-
 
     def __str__(self):
         return f"{self.genre} Radio"
@@ -166,7 +146,7 @@ class GenreRadio(models.Model):
         mood_data = Mood.objects.filter(genre=self.genre)
 
         # Get trend data for the genre
-        #trend_data = Trends.objects.filter(genre=self.genre)
+        # trend_data = Trends.objects.filter(genre=self.genre)
 
         # Dummy logic to select songs based on mood and trends
         selected_songs = Song.objects.filter(genre=self.genre, mood__in=mood_data)
@@ -230,27 +210,10 @@ class AudioFile(models.Model):
     title = models.CharField(max_length=100)
     audio_file = models.FileField(upload_to='songs/')
 
-
     def __str__(self):
         return self.title
 
-
-class APIMusic(models.Model):
-    api_url = models.URLField(max_length=200)
-    access_token = models.CharField(max_length=200, blank=True)
-    
-
-    def fetch_data(api_url, headers=None):
-        try:
-            response = requests.get(api_url, headers=headers)
-            response.raise_for_status()  # Raise an exception for 4xx or 5xx status codes
-            data = response.json()
-            return data
-        except requests.exceptions.RequestException as e:
-            print(f"Failed to fetch data from API: {e}")
-            return None
-
-
+'''
 class MusicAPI:
     BASE_URL = 'http://localhost:8000/api/'  # Replace with your Django app's base URL
 
@@ -287,3 +250,4 @@ class MusicAPI:
     @staticmethod
     def fetch_songs():
         return MusicAPI.fetch_data('songs/')
+'''

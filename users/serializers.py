@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, Library, Like, ListeningHistory, Settings
+from .models import Profile, Library, Like, ListeningHistory, Settings, Favourites
 from django.contrib.auth.models import User
 
 
@@ -26,6 +26,12 @@ class LibrarySerializer(serializers.ModelSerializer):
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Like
+        fields = '__all__'
+
+
+class FavouritesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favourites
         fields = '__all__'
 
 
