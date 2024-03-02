@@ -5,11 +5,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from music.models import Genre
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     bio = models.TextField(blank=True)
+    favourite_genres = models.ManyToManyField(Genre)
     view_count = models.PositiveIntegerField(default=0)
     last_viewed = models.DateTimeField(auto_now=True)
 

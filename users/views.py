@@ -5,39 +5,83 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from catalog.models import Song, Album
+from music.models import Genre
 from music.serializers import SongSerializer, AlbumSerializer
 from users.serializers import ProfileSerializer, LibrarySerializer, LikeSerializer, ListeningHistorySerializer, \
     SettingsSerializer, UserSerializer, FavouritesSerializer
 from users.models import Profile, Library, Like, ListeningHistory, Settings, Favourites
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
 
 
 class ProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        profile = Profile.objects.get(user=request.user)
-        serializer = ProfileSerializer(profile)
-        return Response(serializer.data)
+        try:
+            profile = Profile.objects.get(user=request.user)
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data)
+        except Profile.DoesNotExist:
+            return Response({"message": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
         return Response({"message": "Cannot create new profile while authenticated"}, status=status.HTTP_403_FORBIDDEN)
+
+
+class RegistrationAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            username = request.data.get("username")
+            password = request.data.get("password")
+            email = request.data.get("email")
+            selected_genre_ids = request.data.get("favorite_genres", [])
+
+            if User.objects.filter(username=username).exists() or User.objects.filter(email=email).exists():
+                return Response({"message": "Username or email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = User.objects.create_user(username=username, password=password, email=email)
+
+            profile = Profile.objects.create(user=user)
+            for genre_id in selected_genre_ids:
+                try:
+                    genre = Genre.objects.get(pk=genre_id)
+                    profile.favorite_genres.add(genre)
+                except Genre.DoesNotExist:
+                    pass
+
+            user = authenticate(username=username, password=password)
+            if user:
+                login(request, user)
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({"token": token.key})
+            else:
+                return Response({"message": "Failed to create user"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-        user = authenticate(username=username, password=password)
-        if user:
-            login(request, user)
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({"token": token.key})
-        else:
-            return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            username = request.data.get("username")
+            password = request.data.get("password")
+            user = authenticate(username=username, password=password)
+            if user:
+                login(request, user)
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({"token": token.key})
+            else:
+                return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LibraryAPIView(APIView):

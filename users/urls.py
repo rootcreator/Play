@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import ProfileAPIView, LibraryAPIView, LikeAPIView, ListeningHistoryAPIView, SettingsAPIView, \
-    RecentlyPlayedAPIView, LoginAPIView, FavouritesAPIView, my_uploaded_songs
+    RecentlyPlayedAPIView, LoginAPIView, FavouritesAPIView, my_uploaded_songs, RegistrationAPIView
 
 urlpatterns = [
     path('all-profiles/', ProfileAPIView.as_view(), name='all-profiles'),
@@ -17,5 +17,6 @@ urlpatterns = [
 
 
     path('my-songs/', my_uploaded_songs, name='my_uploaded_songs'),
+    path('register/', RegistrationAPIView.as_view(), name='register'),
 
 ]
