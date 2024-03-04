@@ -1,8 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .models import Genre, Artist, Album, Song, Playlist, AudioFile
-from .serializers import GenreSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer, \
-     AudioFileSerializer
+from .serializers import GenreSerializer, ArtistSerializer, AlbumSerializer, SongSerializer, PlaylistSerializer
 
 
 class GenreListCreateAPIView(generics.ListCreateAPIView):
@@ -35,7 +34,4 @@ class PlaylistListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class AudioFileListCreateAPIView(generics.ListCreateAPIView):
-    queryset = AudioFile.objects.all()
-    serializer_class = AudioFileSerializer
-    permission_classes = [IsAuthenticated]
+

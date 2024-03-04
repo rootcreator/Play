@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Genre, Artist, Song, Album, Playlist, GenreRadio, ArtistRadio, Mood
+from .models import Genre, Artist, Song, Album, Playlist
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -26,10 +26,6 @@ class AlbumSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MoodSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Mood
-        fields = '__all__'
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
@@ -38,7 +34,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class GenreRadioSerializer(serializers.ModelSerializer):
+"""class GenreRadioSerializer(serializers.ModelSerializer):
     class Meta:
         model = GenreRadio
         fields = '__all__'
@@ -48,3 +44,4 @@ class ArtistRadioSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArtistRadio
         fields = '__all__'
+"""

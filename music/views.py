@@ -3,9 +3,8 @@ from django.http import JsonResponse
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Genre, Artist, Song, Album, Playlist, GenreRadio, Mood, ArtistRadio
-from .serializers import GenreSerializer, ArtistSerializer, SongSerializer, AlbumSerializer, PlaylistSerializer, \
-    GenreRadioSerializer, ArtistRadioSerializer, MoodSerializer
+from .models import Genre, Artist, Song, Album, Playlist
+from .serializers import GenreSerializer, ArtistSerializer, SongSerializer, AlbumSerializer, PlaylistSerializer
 
 
 class GenreListCreate(generics.ListCreateAPIView):
@@ -13,9 +12,6 @@ class GenreListCreate(generics.ListCreateAPIView):
     serializer_class = GenreSerializer
 
 
-class MoodListCreate(generics.ListCreateAPIView):
-    queryset = Mood.objects.all()
-    serializer_class = MoodSerializer
 
 
 class ArtistListCreate(generics.ListCreateAPIView):
@@ -38,7 +34,7 @@ class PlaylistListCreate(generics.ListCreateAPIView):
     serializer_class = PlaylistSerializer
 
 
-class GenreRadioListCreate(generics.ListCreateAPIView):
+"""class GenreRadioListCreate(generics.ListCreateAPIView):
     queryset = GenreRadio.objects.all()
     serializer_class = GenreRadioSerializer
 
@@ -46,24 +42,25 @@ class GenreRadioListCreate(generics.ListCreateAPIView):
 class ArtistRadioListCreate(generics.ListCreateAPIView):
     queryset = ArtistRadio.objects.all()
     serializer_class = ArtistRadioSerializer
+"""
 
+class CombinedAPIView(APIView):
+    def get(self, request):
+        # Fetching both songs and albums
+        songs = Song.objects.all()
+        albums = Album.objects.all()
 
-def combined_view(request):
-    # Fetching both songs and albums
-    songs = Song.objects.all()
-    albums = Album.objects.all()
+        # Combining songs and albums
+        combined_data = list(songs) + list(albums)
 
-    # Combining songs and albums
-    combined_data = list(songs) + list(albums)
+        # Sorting the combined data by the latest creation date
+        sorted_data = sorted(combined_data, key=lambda x: x.created_at, reverse=True)
 
-    # Sorting the combined data by the latest creation date
-    sorted_data = sorted(combined_data, key=lambda x: x.created_at, reverse=True)
+        # Serialize the sorted data
+        serialized_data = SongSerializer(sorted_data, many=True).data
 
-    # Serialize the sorted data
-    serialized_data = serializers.serialize('json', sorted_data)
-
-    # Return the serialized data as JSON response
-    return JsonResponse(serialized_data, safe=False)
+        # Return the serialized data as JSON response
+        return Response(serialized_data)
 
 
 class SearchAPIView(APIView):

@@ -69,8 +69,7 @@ INSTALLED_APPS = [
     'sendfile',
     'users',
     'radio',
-    'scrapper',
-    'catalog',
+
 
 
 
@@ -129,7 +128,7 @@ REST_FRAMEWORK = {
     # You need to set the location of the default DRF templates here
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.TemplateHTMLRenderer',  # Add this line for HTML rendering
+        #'rest_framework.renderers.TemplateHTMLRenderer',  # Add this line for HTML rendering
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,

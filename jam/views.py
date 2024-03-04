@@ -23,8 +23,6 @@ class TrendsAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
 class RecommendedAPIView(APIView):
     def get(self, request):
         recommended = Recommended.objects.all()
@@ -113,7 +111,6 @@ class PlaylistRecommendationView(APIView):
     def get(self, request, user_id):
         try:
             user_profile = Profile.objects.get(id=user_id)
-            # Add logic to retrieve recommended playlists for the user
             recommended_playlists = []  # Placeholder for recommended playlists
             return Response({'recommended_playlists': recommended_playlists}, status=status.HTTP_200_OK)
         except Profile.DoesNotExist:
@@ -126,10 +123,8 @@ class AlbumRecommendationView(APIView):
     def get(self, request, user_id):
         try:
             user_profile = Profile.objects.get(id=user_id)
-            # Add logic to retrieve recommended albums for the user
-            similar_releases = SimilarReleases.objects.all()  # Example logic to retrieve similar releases
-            recommended_albums = [album.name for album in
-                                  similar_releases.albums.all()]  # Placeholder for recommended albums
+            similar_releases = SimilarReleases.objects.all()
+            recommended_albums = [album.name for album in similar_releases.albums.all()]
             return Response({'recommended_albums': recommended_albums}, status=status.HTTP_200_OK)
         except Profile.DoesNotExist:
             return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -137,7 +132,6 @@ class AlbumRecommendationView(APIView):
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# Trends
 class TrendingRecommendationView(APIView):
     def get(self, request, user_id):
         try:

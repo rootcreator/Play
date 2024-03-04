@@ -55,25 +55,6 @@ class Genre(models.Model):
         return self.genre
 
 
-class Mood(models.Model):
-    MOOD_CHOICES = [
-        ('Happy', 'Happy'),
-        ('Dance', 'Dance'),
-        ('Party', 'Party'),
-        ('Workout', 'Workout'),
-        ('Sad', 'Sad'),
-        ('Romance', 'Romance'),
-        ('Drive', 'Drive'),
-        ('Focus', 'Focus'),
-        ('Religious', 'Religious'),
-    ]
-
-    mood = models.CharField(max_length=100, choices=MOOD_CHOICES, unique=True)
-
-    def __str__(self):
-        return self.mood
-
-
 class Artist(models.Model):
     name = models.CharField(max_length=100, unique=True)
     cover_image = models.ImageField(null=True, blank=True, upload_to='artist_covers/')
@@ -90,11 +71,10 @@ class Song(models.Model):
     audio_file = models.FileField(upload_to='songs/')
     is_single = models.BooleanField(default=True)  # Indicates if it's a single or part of an album
     album = models.ForeignKey('Album', on_delete=models.CASCADE, null=True, blank=True)
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, blank=True)
     feature = models.ManyToManyField('Artist', related_name='featured', blank=True)
     composer = models.CharField(max_length=100, blank=True, null=True)
     producer = models.CharField(max_length=100, blank=True, null=True, unique=True)
-    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = [['title', 'artist']]
@@ -108,7 +88,6 @@ class Album(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
-    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
 
     songs = models.ManyToManyField(Song, related_name='albums', blank=True)
 
@@ -124,7 +103,6 @@ class Playlist(models.Model):
     cover_image = models.ImageField(upload_to='playlist_covers/')
     songs = models.ManyToManyField(Song)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
 
     class Meta:
@@ -134,22 +112,23 @@ class Playlist(models.Model):
         return self.title
 
 
+"""
 class GenreRadio(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
+
 
     def __str__(self):
         return f"{self.genre} Radio"
 
     def create_playlist(self):
         # Get mood data for the genre
-        mood_data = Mood.objects.filter(genre=self.genre)
+        # mood_data = Mood.objects.filter(genre=self.genre)
 
         # Get trend data for the genre
         # trend_data = Trends.objects.filter(genre=self.genre)
 
         # Dummy logic to select songs based on mood and trends
-        selected_songs = Song.objects.filter(genre=self.genre, mood__in=mood_data)
+        selected_songs = Song.objects.filter(genre=self.genre)
 
         # Define different themes or variations for playlists
         themes = ['Party', 'Relaxing', 'Workout', 'Chill', 'Study']
@@ -159,7 +138,7 @@ class GenreRadio(models.Model):
             shuffled_songs = sample(list(selected_songs), min(len(selected_songs), 24))  # Select up to 24 songs
 
             # Create playlist title based on theme, mood, and trends
-            playlist_title = f"{self.genre} Radio Playlist - {theme} - Mood: {mood_data}"
+            playlist_title = f"{self.genre} Radio Playlist - {theme}"
 
             # Check if playlist with the same title already exists
             existing_playlist = Playlist.objects.filter(title=playlist_title).exists()
@@ -178,7 +157,7 @@ class GenreRadio(models.Model):
 
 class ArtistRadio(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
+    #mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.artist} Radio"
@@ -204,6 +183,7 @@ class ArtistRadio(models.Model):
                 # Create the playlist only if it doesn't already exist
                 playlist = Playlist.objects.create(title=playlist_title, artist=self.artist)
                 playlist.songs.add(*shuffled_songs)
+"""
 
 
 class AudioFile(models.Model):
@@ -212,6 +192,7 @@ class AudioFile(models.Model):
 
     def __str__(self):
         return self.title
+
 
 '''
 class MusicAPI:
