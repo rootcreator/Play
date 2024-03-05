@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Music</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col text-center">
+                <h1>Add Music</h1>
+                <button id="songBtn" class="btn btn-primary">Add Song</button>
+                <button id="albumBtn" class="btn btn-primary">Add Album</button>
+            </div>
+        </div>
+        <div class="row mt-3 justify-content-center">
+            <div class="col">
+                <div class="form-container">
+                    <form id="songForm" class="hidden" enctype="multipart/form-data">
+                        <h2>Add a Song</h2>
+                        <div class="mb-3">
+                            <label for="songTitle" class="form-label">Song Title</label>
+                            <input type="text" id="songTitle" name="song_title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="artist" class="form-label">Artist</label>
+                            <input type="text" id="artist" name="artist" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="genre" class="form-label">Genre</label>
+                            <input type="text" id="genre" name="genre" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cover_art" class="form-label">Cover Art</label>
+                            <input type="file" id="cover_art" name="cover_art" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="audio_file" class="form-label">Audio File</label>
+                            <input type="file" id="audio_file" name="audio_file" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Song</button>
+                    </form>
+                    <form id="albumForm" class="hidden" enctype="multipart/form-data">
+                        <h2>Add an Album</h2>
+                        <div class="mb-3">
+                            <label for="albumTitle" class="form-label">Album Title</label>
+                            <input type="text" id="albumTitle" name="album_title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="artistAlbum" class="form-label">Artist</label>
+                            <input type="text" id="artistAlbum" name="artist" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="albumGenre" class="form-label">Genre</label>
+                            <input type="text" id="albumGenre" name="genre" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="album_art" class="form-label">Cover Art</label>
+                            <input type="file" id="album_art" name="album_art" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="songs" class="form-label">Audio Files</label>
+                            <input type="file" id="songs" name="audio_files" class="form-control" required multiple>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Album</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const songBtn = document.getElementById('songBtn');
+            const albumBtn = document.getElementById('albumBtn');
+            const songForm = document.getElementById('songForm');
+            const albumForm = document.getElementById('albumForm');
+
+            function toggleFormVisibility(showSongForm) {
+                songForm.classList.toggle('hidden', !showSongForm);
+                albumForm.classList.toggle('hidden', showSongForm);
+            }
+
+            songBtn.addEventListener('click', function() {
+                toggleFormVisibility(true);
+            });
+
+            albumBtn.addEventListener('click', function() {
+                toggleFormVisibility(false);
+            });
+        });
+    </script>
+</body>
+</html>

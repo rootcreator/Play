@@ -1,10 +1,4 @@
-import requests
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.core.files.base import ContentFile
-
-from random import sample
 
 
 class Genre(models.Model):
@@ -74,7 +68,7 @@ class Song(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, blank=True)
     feature = models.ManyToManyField('Artist', related_name='featured', blank=True)
     composer = models.CharField(max_length=100, blank=True, null=True)
-    producer = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    producer = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         unique_together = [['title', 'artist']]
@@ -88,11 +82,10 @@ class Album(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     cover_image = models.ImageField(upload_to='album_covers/')
-
     songs = models.ManyToManyField(Song, related_name='albums', blank=True)
 
     class Meta:
-        unique_together = [['title', 'artist', 'cover_image']]
+        unique_together = [['title', 'artist']]
 
     def __str__(self):
         return self.title
@@ -184,15 +177,6 @@ class ArtistRadio(models.Model):
                 playlist = Playlist.objects.create(title=playlist_title, artist=self.artist)
                 playlist.songs.add(*shuffled_songs)
 """
-
-
-class AudioFile(models.Model):
-    title = models.CharField(max_length=100)
-    audio_file = models.FileField(upload_to='songs/')
-
-    def __str__(self):
-        return self.title
-
 
 '''
 class MusicAPI:

@@ -1,19 +1,19 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.shortcuts import render, redirect
 from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from music.serializers import SongSerializer, AlbumSerializer
+from users.forms import SongForm, AlbumForm
+from users.models import Profile, Library, Like, ListeningHistory, Settings, Favourites
 from users.serializers import (
     ProfileSerializer, LibrarySerializer, LikeSerializer,
     ListeningHistorySerializer, SettingsSerializer,
     UserSerializer, FavouritesSerializer
 )
-from users.models import Profile, Library, Like, ListeningHistory, Settings, Favourites
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
+from music.models import Song, Album
 
 
 class ProfileAPIView(APIView):
@@ -179,3 +179,28 @@ class RecentlyPlayedAPIView(APIView):
         })
 
 
+# Upload
+def upload_media(request):
+    if request.method == 'POST':
+        # Check if song form submitted
+        if 'audio_file' in request.FILES:
+            form = SongForm(request.POST, request.FILES)
+        # Check if album form submitted
+        elif 'songs' in request.FILES:
+            form = AlbumForm(request.POST, request.FILES)
+        else:
+            # Handle invalid form submission
+            return render(request, 'invalid_media_upload.html')
+
+        if form.is_valid():
+            media = form.save()
+            # Redirect to appropriate detail view based on media type
+            if isinstance(media, Song):
+                return redirect('song_detail', song_id=media.id)
+            elif isinstance(media, Album):
+                return redirect('album_detail', album_id=media.id)
+    else:
+        # Render the upload form
+        song_form = SongForm()
+        album_form = AlbumForm()
+        return render(request, 'music_form.html', {'song_form': song_form, 'album_form': album_form})

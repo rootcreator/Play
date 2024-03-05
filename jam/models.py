@@ -1,9 +1,6 @@
-import profile
-
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from django.db.models import Count
-from django.contrib.contenttypes.models import ContentType
+
 from music.models import Song, Album, Playlist
 from users.models import Library, ListeningHistory, Profile, Like, Favourites
 
