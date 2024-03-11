@@ -1,22 +1,24 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import Group
 from django.shortcuts import render, redirect
 from rest_framework import status
-from rest_framework.authtoken.models import Token
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from music.serializers import SongSerializer, AlbumSerializer
-from users.forms import SongForm, AlbumForm
-from users.models import Profile, Library, Like, ListeningHistory, Settings, Favourites
-from users.serializers import (
-    ProfileSerializer, LibrarySerializer, LikeSerializer,
-    ListeningHistorySerializer, SettingsSerializer,
-    UserSerializer, FavouritesSerializer
-)
 from music.models import Song, Album
+from music.serializers import SongSerializer, AlbumSerializer
+from users.models import Profile, Library, Like, Favourites, ListeningHistory, Settings
+from .forms import AlbumForm, SongForm
+from .serializers import (
+    ProfileSerializer, UserSerializer, LibrarySerializer,
+    LikeSerializer, FavouritesSerializer, SettingsSerializer,
+    ListeningHistorySerializer
+)
 
 
 class ProfileAPIView(APIView):
+    authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -35,12 +37,17 @@ class ProfileAPIView(APIView):
 
 class RegistrationAPIView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = [BasicAuthentication]
 
     def post(self, request):
         try:
             serializer = UserSerializer(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
+
+                group = Group.objects.get(name='user')
+                request.user.groups.add(group)
+
                 profile_data = {
                     "user": user.id,
                     "favorite_genres": request.data.get("favorite_genres", [])
@@ -48,8 +55,7 @@ class RegistrationAPIView(APIView):
                 profile_serializer = ProfileSerializer(data=profile_data)
                 if profile_serializer.is_valid():
                     profile_serializer.save()
-                    token, _ = Token.objects.get_or_create(user=user)
-                    return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+                    return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
                 else:
                     user.delete()
                     return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -60,17 +66,16 @@ class RegistrationAPIView(APIView):
 
 
 class LoginAPIView(APIView):
+    authentication_classes = [BasicAuthentication]
     permission_classes = [AllowAny]
 
     def post(self, request):
         try:
             username = request.data.get("username")
             password = request.data.get("password")
-            user = authenticate(username=username, password=password)
+            user = authenticate(request, username=username, password=password)
             if user:
-                login(request, user)
-                token, _ = Token.objects.get_or_create(user=user)
-                return Response({"token": token.key}, status=status.HTTP_200_OK)
+                return Response({"message": "User authenticated successfully"}, status=status.HTTP_200_OK)
             else:
                 return Response({"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
