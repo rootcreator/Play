@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ song.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin-top: 0;
+        }
+        p {
+            margin: 10px 0;
+        }
+        .cover-art {
+            width: 300px;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ song.title }}</h1>
+        <img class="cover-art" src="{{ song.cover_image.url }}" alt="{{ song.title }} Cover">
+        <p><strong>Artist:</strong> {{ song.artist }}</p>
+        <p><strong>Album:</strong> {{ song.album }}</p>
+        <p><strong>Release Year:</strong> {{ song.release_year }}</p>
+        <!-- Add more details about the song as needed -->
+
+        <!-- Example: Display the song's audio file if available -->
+        {% if song.audio_file %}
+            <audio id="audio-player" controls>
+                <source id="audio-source" src="{{ song.audio_file.url }}" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        {% endif %}
+
+        <!-- Add more HTML to display additional information about the song -->
+    </div>
+
+    <div>
+        <!-- Link back to the list of all songs -->
+        <p><a href="{% url 'song_list' %}">Back to All Songs</a></p>
+    </div>
+
+    <!-- Include Bootstrap js -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const audioPlayer = document.getElementById('audio-player');
+            const audioSource = document.getElementById('audio-source');
+
+            let isPlaying = false;
+
+            // Function to play or pause the audio
+            function togglePlay() {
+                if (isPlaying) {
+                    audioPlayer.pause();
+                } else {
+                    audioPlayer.play();
+                }
+                isPlaying = !isPlaying;
+            }
+
+            // Add click event listener to the play/pause button
+            audioPlayer.addEventListener('play', function() {
+                isPlaying = true;
+            });
+
+            audioPlayer.addEventListener('pause', function() {
+                isPlaying = false;
+            });
+
+            // Add click event listener to the play/pause button
+            audioPlayer.addEventListener('play', function() {
+                isPlaying = true;
+            });
+
+            audioPlayer.addEventListener('pause', function() {
+                isPlaying = false;
+            });
+        });
+    </script>
+</body>
+</html>

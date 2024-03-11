@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Playlists</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styling */
+        .playlist-card {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .playlist-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .playlist-link {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/search">Search</a>
+                </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<main class="container">
+   <!-- <h1 class="mt-4">List of Playlists</h1> -->
+
+   <!-- <form class="form-inline my-4" method="GET">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>-->
+
+
+    <div class="row">
+        {% for playlist in playlists %}
+            <div class="col-md-4">
+                <a href="{% url 'playlist_detail' playlist.id %}" class="playlist-link">
+                    <div class="card playlist-card">
+                        <div class="card-body">
+                            <h3 class="card-title">{{ playlist.title }}</h3>
+                            <!-- Display cover image if available -->
+                            {% if playlist.cover_image %}
+                                <img src="{{ playlist.cover_image.url }}" alt="{{ playlist.title }} Cover" class="card-img-top">
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p class="col-md-12">No playlists found.</p>
+        {% endfor %}
+    </div>
+</main>
+
+<!-- Include Bootstrap js for certain components (if needed) -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

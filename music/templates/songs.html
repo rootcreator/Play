@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Songs</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styling */
+        .playlist-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .playlist-card {
+            width: 23%;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .playlist-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .playlist-card ul {
+            padding-left: 20px;
+        }
+        .playlist-card li {
+            list-style-type: none;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                    <a class="nav-link" href="http://127.0.0.1:8000/search">Search</a>
+                </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<main class="container mt-3">
+    <section id="songs">
+        <h2>Songs</h2>
+        <!--<form method="GET">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search by title" name="search">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Search</button>
+                </div>
+            </div>
+        </form>-->
+        <div class="row">
+            {% for song in songs %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <a href="{% url 'song_detail' song.id %}"> <!-- Link to song detail page -->
+                            <img src="{{ song.cover_image.url }}" class="card-img-top" alt="{{ song.title }} Cover">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ song.title }}</h5>
+                                <p class="card-text">By {{ song.artist.name }}</p>
+                                <p class="card-text">Rating: {{ song.get_rating_display }}</p>
+                                <!-- Include other song details if needed -->
+                            </div>
+                        </a>
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-primary btn-play" data-src="{{ song.audio_file.url }}">Play</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</main>
+
+<!-- Bootstrap js CDN -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
