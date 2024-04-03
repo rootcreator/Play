@@ -19,40 +19,13 @@
         <h1>Search</h1>
     </header>
 <main>
-<!--<nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/search">Search</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/radio">Radio Stations</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/artists">Artists</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/genres">Genres</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/songs">Songs</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/albums">Albums</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="http://127.0.0.1:8000/music/playlists">Playlists</a>
-                </li>
-            </ul>
-        </div>
-    </nav>-->
 
     <div class="container">
         <div class="row">
             <div class="col-md-12">
 
                 <div class="search-container">
-                    <form action="{% url 'search_view' %}" method="get">
+                    <form action="{% url 'search' %}" method="get">
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" name="q" placeholder="Find Albums, Genres, Songs, Artists and Playlists" aria-label="Search" aria-describedby="button-addon2">
                             <div class="input-group-append">
@@ -63,12 +36,6 @@
                 </div>
             </div>
         </div>
-
-      <!--  <div class="row mt-4">
-            <div class="col-md-12">
-                <h1 class="text-center">Local Results</h1>
-            </div>
-        </div> -->
 
         <!-- Display search results -->
         {% if local_results.songs %}
@@ -147,7 +114,7 @@
 
    <div class="text-bottom-left">
     <!-- Link to go back to the playlist page -->
-    <a href="http://127.0.0.1:8000/music/" class="btn btn-secondary mt-3">Home</a>
+    <a href="http://127.0.0.1:8000/music/home" class="btn btn-secondary mt-3">Home</a>
 </div>
 
 </main>

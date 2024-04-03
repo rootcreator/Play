@@ -1,13 +1,19 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Artist, Album, Song, Playlist, Genre
+from .models import Artist, Album, Song, Playlist, Genre, GenreRadio, ArtistRadio
 from django import forms
 
-# Register your models here
-admin.site.register(Genre)
-admin.site.register(Artist)
 
+# Register your models here
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ['genre']  # Customize the display fields as needed
+
+
+admin.site.register(Genre, GenreAdmin)
+admin.site.register(Artist)
 admin.site.register(Song)
+admin.site.register(GenreRadio)
+admin.site.register(ArtistRadio)
 
 
 class AlbumForm(forms.ModelForm):
@@ -49,5 +55,3 @@ class AudioFileAdmin(admin.ModelAdmin):
             return "No audio file"
 
     display_audio_player.short_description = 'Audio Player'
-
-

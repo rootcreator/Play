@@ -1,24 +1,18 @@
 from django.urls import path
-from .views import ProfileAPIView, LibraryAPIView, LikeAPIView, ListeningHistoryAPIView, SettingsAPIView, \
-    RecentlyPlayedAPIView, LoginAPIView, FavouritesAPIView, RegistrationAPIView, upload_media
+from .views import (
+    RegistrationAPIView, LoginAPIView, ProfileAPIView, LibraryAPIView,
+    UserUploadAPIView, LikeAPIView, FavouritesAPIView, ListeningHistoryAPIView,
+    SettingsAPIView
+)
 
 urlpatterns = [
-    path('all-profiles/', ProfileAPIView.as_view(), name='all-profiles'),
-    path('all-libraries/', LibraryAPIView.as_view(), name='all-libraries'),
-    path('profile/', ProfileAPIView.as_view(), name='profile'),
-    path('login/', LoginAPIView.as_view(), name='login'),
-    path('library/', LibraryAPIView.as_view(), name='library'),
-    path('likes/', LikeAPIView.as_view(), name='likes'),
-    path('favourites/', FavouritesAPIView.as_view(), name='favourites-list-create'),
-    path('listening-histories/', ListeningHistoryAPIView.as_view(), name='listening_histories'),
-    path('settings/', SettingsAPIView.as_view(), name='settings'),
-    path('recently-played/', RecentlyPlayedAPIView.as_view(), name='recently-played'),
-
-    path('register/', RegistrationAPIView.as_view(), name='register'),
-
-    path('upload', upload_media, name='upload'),
-
-
-
-
+    path('register/', RegistrationAPIView.as_view(), name='user_register'),
+    path('login/', LoginAPIView.as_view(), name='user_login'),
+    path('profile/', ProfileAPIView.as_view(), name='user_profile'),
+    path('library/', LibraryAPIView.as_view(), name='user_library'),
+    path('upload/', UserUploadAPIView.as_view(), name='user_upload'),
+    path('like/', LikeAPIView.as_view(), name='user_like'),
+    path('favourites/', FavouritesAPIView.as_view(), name='user_favourites'),
+    path('listening-history/', ListeningHistoryAPIView.as_view(), name='user_listening_history'),
+    path('settings/', SettingsAPIView.as_view(), name='user_settings'),
 ]

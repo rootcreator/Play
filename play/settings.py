@@ -34,7 +34,6 @@ LOGGING = {
 
 ALLOWED_HOSTS = []
 
-
 SITE_ID = 1  # Assuming the ID of the default site is 1
 
 # Application definition
@@ -50,18 +49,13 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
-
     'jam',
     'music',
-    'sendfile',
     'users',
     'radio',
 
-
 ]
 
-# Backend for serving files
-SENDFILE_BACKEND = 'sendfile.backends.nginx'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,7 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'music.middleware.cloudflare_middleware.CloudflareMiddleware',
+
 ]
 
 ROOT_URLCONF = 'play.urls'
@@ -112,7 +106,7 @@ REST_FRAMEWORK = {
     # You need to set the location of the default DRF templates here
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        #'rest_framework.renderers.TemplateHTMLRenderer',  # Add this line for HTML rendering
+        # 'rest_framework.renderers.TemplateHTMLRenderer',  # Add this line for HTML rendering
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
@@ -120,8 +114,6 @@ REST_FRAMEWORK = {
 
 # Redirect to a particular URL after login (optional)
 LOGIN_REDIRECT_URL = '/'  # Replace '/' with your desired URL
-
-
 
 '''DATABASE_ROUTERS = ['routers.routers.AppRouter']'''
 # Database
@@ -155,7 +147,6 @@ LOGIN_REDIRECT_URL = '/'  # Replace '/' with your desired URL
      'HOST': 'localhost',
      'PORT': '5432',
  },'''
-
 
 DATABASES = {
     'default': {
@@ -275,8 +266,6 @@ CORS_ALLOWED_ORIGINS = [
     'http://*',
     'https://*',
 ]
-
-
 
 CSRF_COOKIE_SECURE = False  # Ensure this is False in development
 CSRF_COOKIE_HTTPONLY = False  # Ensure this is False in development

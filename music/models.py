@@ -1,4 +1,8 @@
+from random import sample
+
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Genre(models.Model):
@@ -65,8 +69,6 @@ class Song(models.Model):
     audio_file = models.FileField(upload_to='songs/')
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE, blank=True)
     feature = models.ForeignKey('Artist', related_name='featured', blank=True, on_delete=models.CASCADE)
-    #composer = models.CharField(max_length=100, blank=True, null=True)
-    #producer = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         unique_together = [['title', 'artist']]
@@ -103,10 +105,8 @@ class Playlist(models.Model):
         return self.title
 
 
-"""
 class GenreRadio(models.Model):
-    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
-
+    genre_radio = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.genre} Radio"
@@ -147,8 +147,9 @@ class GenreRadio(models.Model):
 
 
 class ArtistRadio(models.Model):
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
-    #mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
+    artist_radio = models.ForeignKey(Artist, on_delete=models.CASCADE)
+
+    # mood = models.ForeignKey(Mood, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.artist} Radio"
@@ -174,7 +175,7 @@ class ArtistRadio(models.Model):
                 # Create the playlist only if it doesn't already exist
                 playlist = Playlist.objects.create(title=playlist_title, artist=self.artist)
                 playlist.songs.add(*shuffled_songs)
-"""
+
 
 '''
 class MusicAPI:

@@ -5,7 +5,6 @@ from music.models import Song, Album, Playlist
 from users.models import Library, ListeningHistory, Profile, Like, Favourites
 
 
-# Create your models here.
 class RecommendedPlaylists(models.Model):
     user = models.OneToOneField(Profile, on_delete=models.CASCADE)
     genre = models.CharField(max_length=100)
@@ -122,7 +121,8 @@ class Trends(models.Model):
         """
         Get the most popular songs based on listening history.
         """
-        popular_genres = ListeningHistory.objects.values('song').annotate(total=Count('song')).order_by('-total')[:limit]
+        popular_genres = ListeningHistory.objects.values('song').annotate(total=Count('song')).order_by('-total')[
+                         :limit]
         return popular_genres
 
     @staticmethod
@@ -233,4 +233,3 @@ class Feeds(models.Model):
         except Exception as e:
             print(f"Error generating feeds: {e}")
             return []
-
